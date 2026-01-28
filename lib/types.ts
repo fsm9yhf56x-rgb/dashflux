@@ -16,6 +16,7 @@ export interface AssetScore {
   name: string;
   category: 'equity' | 'commodity' | 'crypto' | 'bond' | 'currency';
   score: number;
+  technicalScore: number;      // ✅ Ajouté pour éviter erreur TypeScript
   emergentScore: number;
   momentum: number;
   volatility: number;
