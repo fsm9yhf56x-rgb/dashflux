@@ -39,7 +39,6 @@ export default function TopEmergentAssets({ scores }: Props) {
   };
 
   const getTopPillar = (asset: AssetScore) => {
-    // Si emergentDetails n'existe pas, retourner des valeurs par défaut
     if (!asset.emergentDetails) {
       return { name: 'Momentum', value: asset.momentum };
     }
@@ -54,30 +53,26 @@ export default function TopEmergentAssets({ scores }: Props) {
     return pillars.sort((a, b) => b.value - a.value)[0];
   };
 
-  const handleExpandClick = () => {
-    // Le clic sur la carte expand/collapse
-  };
-
   const handleViewDetails = (ticker: string, e: React.MouseEvent) => {
-    e.stopPropagation(); // Empêcher l'expand
+    e.stopPropagation();
     router.push(`/asset/${ticker}`);
   };
 
   return (
-    <div className="bg-white dark:bg-[#1a1f27] rounded-lg shadow-lg p-6 border-2 border-orange-200 dark:border-[#ff6b35] relative overflow-hidden">
+    <div className="bg-white dark:bg-[#1a1f27] rounded-lg shadow-lg p-4 lg:p-6 border-2 border-orange-200 dark:border-[#ff6b35] relative overflow-hidden">
       {/* Effet glow orange */}
       <div className="absolute inset-0 bg-gradient-to-br from-orange-50 dark:from-[#ff6b35]/5 to-transparent pointer-events-none"></div>
       
       <div className="relative">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full bg-orange-500 dark:bg-[#ff6b35] animate-pulse"></div>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-[#f5f5f5]">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
+          <div className="flex items-center gap-2 lg:gap-3">
+            <div className="w-2.5 h-2.5 lg:w-3 lg:h-3 rounded-full bg-orange-500 dark:bg-[#ff6b35] animate-pulse"></div>
+            <h2 className="text-lg lg:text-xl font-bold text-gray-900 dark:text-[#f5f5f5]">
               Top 3 Émergents
             </h2>
           </div>
-          <p className="text-sm text-gray-500 dark:text-[#71717a]">
+          <p className="text-xs lg:text-sm text-gray-500 dark:text-[#71717a]">
             Anticipation 1-3 mois
           </p>
         </div>
@@ -92,61 +87,61 @@ export default function TopEmergentAssets({ scores }: Props) {
               <div
                 key={asset.ticker}
                 onClick={() => setExpanded(isExpanded ? null : index)}
-                className="bg-gray-50 dark:bg-[#252b36] rounded-lg p-4 border border-gray-200 dark:border-[#3d424d] hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-lg cursor-pointer transition-all duration-200 group"
+                className="bg-gray-50 dark:bg-[#252b36] rounded-lg p-3 lg:p-4 border border-gray-200 dark:border-[#3d424d] hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-lg cursor-pointer transition-all duration-200 group"
               >
                 {/* Ligne principale */}
-                <div className="flex items-center justify-between gap-4">
+                <div className="flex flex-col lg:flex-row items-start lg:items-center gap-3 lg:gap-4">
                   {/* Gauche : Rank + Asset */}
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <span className="text-3xl flex-shrink-0">{getRankEmoji(index)}</span>
+                  <div className="flex items-center gap-2 lg:gap-3 flex-1 min-w-0 w-full lg:w-auto">
+                    <span className="text-2xl lg:text-3xl flex-shrink-0">{getRankEmoji(index)}</span>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-bold text-gray-900 dark:text-[#f5f5f5] truncate">
+                      <h3 className="text-sm lg:text-base font-bold text-gray-900 dark:text-[#f5f5f5] truncate">
                         {asset.name}
                       </h3>
-                      <p className="text-sm text-gray-600 dark:text-[#a1a1aa] truncate">
+                      <p className="text-xs lg:text-sm text-gray-600 dark:text-[#a1a1aa] truncate">
                         {asset.ticker} • {topPillar.name}: {topPillar.value}
                       </p>
                     </div>
                   </div>
 
-                  {/* Centre : Scores - Alignés verticalement */}
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    <div className="text-center min-w-[60px]">
-                      <p className="text-xs text-gray-500 dark:text-[#71717a] mb-1">Actuel</p>
-                      <p className="text-xl font-bold text-gray-700 dark:text-[#d4d4d8]">
+                  {/* Centre : Scores */}
+                  <div className="flex items-center gap-2 lg:gap-3 flex-shrink-0 w-full lg:w-auto">
+                    <div className="text-center min-w-[50px] lg:min-w-[60px]">
+                      <p className="text-[10px] lg:text-xs text-gray-500 dark:text-[#71717a] mb-1">Actuel</p>
+                      <p className="text-lg lg:text-xl font-bold text-gray-700 dark:text-[#d4d4d8]">
                         {asset.score}
                       </p>
                     </div>
-                    <div className="text-center min-w-[90px] px-3 py-2 bg-orange-100 dark:bg-[#ff6b35]/10 rounded-lg border-2 border-orange-400 dark:border-[#ff6b35]">
-                      <p className="text-xs text-orange-700 dark:text-[#ff6b35] font-semibold mb-1">Émergent</p>
-                      <p className={`text-xl font-bold ${getScoreColor(asset.emergentScore)}`}>
+                    <div className="text-center flex-1 lg:min-w-[80px] px-2 lg:px-3 py-1.5 lg:py-2 bg-orange-100 dark:bg-[#ff6b35]/10 rounded-lg border-2 border-orange-400 dark:border-[#ff6b35]">
+                      <p className="text-[10px] lg:text-xs text-orange-700 dark:text-[#ff6b35] font-semibold mb-1">Émergent</p>
+                      <p className={`text-lg lg:text-xl font-bold ${getScoreColor(asset.emergentScore)}`}>
                         {asset.emergentScore}
                       </p>
                     </div>
                   </div>
 
                   {/* Droite : Recommandation + Boutons */}
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className={`text-xs font-bold px-4 py-2.5 rounded-lg whitespace-nowrap ${getRecommendationStyle(asset.recommendation)}`}>
+                  <div className="flex items-center gap-2 flex-shrink-0 w-full lg:w-auto">
+                    <span className={`text-[10px] lg:text-xs font-bold px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg whitespace-nowrap ${getRecommendationStyle(asset.recommendation)} flex-1 lg:flex-initial text-center`}>
                       {asset.recommendation}
                     </span>
                     
-                    {/* Bouton Voir Détails */}
+                    {/* Bouton Voir Détails - Cache label sur très petit écran */}
                     <button
                       onClick={(e) => handleViewDetails(asset.ticker, e)}
-                      className="flex items-center gap-1 px-3 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold rounded-lg transition-all hover:scale-105 active:scale-95"
+                      className="flex items-center justify-center gap-1 px-2 lg:px-3 py-2 lg:py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold rounded-lg transition-all hover:scale-105 active:scale-95 min-w-[40px] lg:min-w-auto"
                       title="Voir l'analyse complète"
                     >
-                      <ExternalLink className="w-3 h-3" />
-                      <span className="hidden sm:inline">Détails</span>
+                      <ExternalLink className="w-3 h-3 lg:w-4 lg:h-4" />
+                      <span className="hidden sm:inline text-[10px] lg:text-xs">Détails</span>
                     </button>
                     
                     {/* Chevron Expand */}
                     <div className="hover:bg-gray-200 dark:hover:bg-gray-700 rounded p-1 transition-colors">
                       {isExpanded ? (
-                        <ChevronUp className="w-5 h-5 text-gray-500 dark:text-[#a1a1aa] flex-shrink-0" />
+                        <ChevronUp className="w-4 h-4 lg:w-5 lg:h-5 text-gray-500 dark:text-[#a1a1aa] flex-shrink-0" />
                       ) : (
-                        <ChevronDown className="w-5 h-5 text-gray-500 dark:text-[#a1a1aa] flex-shrink-0" />
+                        <ChevronDown className="w-4 h-4 lg:w-5 lg:h-5 text-gray-500 dark:text-[#a1a1aa] flex-shrink-0" />
                       )}
                     </div>
                   </div>
@@ -155,37 +150,37 @@ export default function TopEmergentAssets({ scores }: Props) {
                 {/* Détails dépliables */}
                 {isExpanded && asset.emergentDetails && (
                   <div className="mt-4 pt-4 border-t border-gray-200 dark:border-[#3d424d]">
-                    <div className="grid grid-cols-4 gap-3">
-                      <div className="text-center p-3 bg-white dark:bg-[#1a1f27] rounded-lg border border-gray-200 dark:border-[#3d424d]">
-                        <p className="text-xs text-gray-500 dark:text-[#71717a] mb-1">Contrarian</p>
-                        <p className={`text-lg font-bold ${getScoreColor(asset.emergentDetails.contrarian)}`}>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-3">
+                      <div className="text-center p-2 lg:p-3 bg-white dark:bg-[#1a1f27] rounded-lg border border-gray-200 dark:border-[#3d424d]">
+                        <p className="text-[10px] lg:text-xs text-gray-500 dark:text-[#71717a] mb-1">Contrarian</p>
+                        <p className={`text-base lg:text-lg font-bold ${getScoreColor(asset.emergentDetails.contrarian)}`}>
                           {asset.emergentDetails.contrarian}
                         </p>
                       </div>
-                      <div className="text-center p-3 bg-white dark:bg-[#1a1f27] rounded-lg border border-gray-200 dark:border-[#3d424d]">
-                        <p className="text-xs text-gray-500 dark:text-[#71717a] mb-1">Catalyseurs</p>
-                        <p className={`text-lg font-bold ${getScoreColor(asset.emergentDetails.catalysts)}`}>
+                      <div className="text-center p-2 lg:p-3 bg-white dark:bg-[#1a1f27] rounded-lg border border-gray-200 dark:border-[#3d424d]">
+                        <p className="text-[10px] lg:text-xs text-gray-500 dark:text-[#71717a] mb-1">Catalyseurs</p>
+                        <p className={`text-base lg:text-lg font-bold ${getScoreColor(asset.emergentDetails.catalysts)}`}>
                           {asset.emergentDetails.catalysts}
                         </p>
                       </div>
-                      <div className="text-center p-3 bg-white dark:bg-[#1a1f27] rounded-lg border border-gray-200 dark:border-[#3d424d]">
-                        <p className="text-xs text-gray-500 dark:text-[#71717a] mb-1">Technique</p>
-                        <p className={`text-lg font-bold ${getScoreColor(asset.emergentDetails.technicalEarly)}`}>
+                      <div className="text-center p-2 lg:p-3 bg-white dark:bg-[#1a1f27] rounded-lg border border-gray-200 dark:border-[#3d424d]">
+                        <p className="text-[10px] lg:text-xs text-gray-500 dark:text-[#71717a] mb-1">Technique</p>
+                        <p className={`text-base lg:text-lg font-bold ${getScoreColor(asset.emergentDetails.technicalEarly)}`}>
                           {asset.emergentDetails.technicalEarly}
                         </p>
                       </div>
-                      <div className="text-center p-3 bg-white dark:bg-[#1a1f27] rounded-lg border border-gray-200 dark:border-[#3d424d]">
-                        <p className="text-xs text-gray-500 dark:text-[#71717a] mb-1">Rotation</p>
-                        <p className={`text-lg font-bold ${getScoreColor(asset.emergentDetails.rotation)}`}>
+                      <div className="text-center p-2 lg:p-3 bg-white dark:bg-[#1a1f27] rounded-lg border border-gray-200 dark:border-[#3d424d]">
+                        <p className="text-[10px] lg:text-xs text-gray-500 dark:text-[#71717a] mb-1">Rotation</p>
+                        <p className={`text-base lg:text-lg font-bold ${getScoreColor(asset.emergentDetails.rotation)}`}>
                           {asset.emergentDetails.rotation}
                         </p>
                       </div>
                     </div>
-                    <div className="mt-3 p-3 bg-orange-50 dark:bg-[#2f3542] rounded-lg border border-orange-200 dark:border-[#3d424d]">
-                      <span className="text-orange-700 dark:text-[#ff8c5f] font-bold">
+                    <div className="mt-3 p-2 lg:p-3 bg-orange-50 dark:bg-[#2f3542] rounded-lg border border-orange-200 dark:border-[#3d424d]">
+                      <span className="text-orange-700 dark:text-[#ff8c5f] font-bold text-sm lg:text-base">
                         🎯 {asset.recommendation}
                       </span>
-                      <span className="text-gray-700 dark:text-[#d4d4d8]"> - {
+                      <span className="text-gray-700 dark:text-[#d4d4d8] text-xs lg:text-sm"> - {
                         asset.recommendation === 'ACCUMULATE' 
                           ? 'Fenêtre d\'opportunité 1-2 mois'
                           : asset.recommendation === 'WATCH'
@@ -197,11 +192,11 @@ export default function TopEmergentAssets({ scores }: Props) {
                     {/* Bouton Voir Analyse Complète (version expanded) */}
                     <button
                       onClick={(e) => handleViewDetails(asset.ticker, e)}
-                      className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg transition-all hover:scale-[1.02] active:scale-95"
+                      className="mt-3 w-full flex items-center justify-center gap-2 px-3 lg:px-4 py-2.5 lg:py-3 bg-blue-500 hover:bg-blue-600 text-white text-sm lg:text-base font-bold rounded-lg transition-all hover:scale-[1.02] active:scale-95"
                     >
-                      <ExternalLink className="w-4 h-4" />
-                      Voir l'analyse complète de {asset.ticker}
-                      <ArrowRight className="w-4 h-4" />
+                      <ExternalLink className="w-3 h-3 lg:w-4 lg:h-4" />
+                      <span className="truncate">Voir l'analyse complète de {asset.ticker}</span>
+                      <ArrowRight className="w-3 h-3 lg:w-4 lg:h-4 flex-shrink-0" />
                     </button>
                   </div>
                 )}
@@ -211,8 +206,8 @@ export default function TopEmergentAssets({ scores }: Props) {
         </div>
 
         {/* Footer */}
-        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-[#3d424d] text-sm text-gray-500 dark:text-[#71717a] text-center">
-          💡 Cliquez sur une carte pour déplier • Bouton <ExternalLink className="w-3 h-3 inline" /> pour voir l'analyse complète
+        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-[#3d424d] text-xs lg:text-sm text-gray-500 dark:text-[#71717a] text-center">
+          💡 <span className="hidden sm:inline">Cliquez sur une carte pour déplier • </span>Bouton <ExternalLink className="w-3 h-3 inline" /> pour l'analyse complète
         </div>
       </div>
     </div>

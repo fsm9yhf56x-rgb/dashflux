@@ -62,19 +62,19 @@ export default function DashboardStats({ scores }: Props) {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-4">
+    <div className="grid grid-cols-2 lg:grid-cols-6 gap-2 lg:gap-3 mb-4">
       {stats.map((stat, index) => (
         <div
           key={index}
-          className={`${stat.color} rounded-lg p-2 border-2 transition-transform hover:scale-105`}
+          className={`${stat.color} rounded-lg p-2 lg:p-3 border-2 transition-transform hover:scale-105`}
         >
-          <div className="flex items-center gap-1.5 mb-1">
-            <stat.icon className="w-4 h-4" />
-            <p className="text-[10px] font-medium uppercase tracking-wide">
+          <div className="flex items-center gap-1 lg:gap-1.5 mb-1">
+            <stat.icon className="w-3 h-3 lg:w-4 lg:h-4 flex-shrink-0" />
+            <p className="text-[9px] lg:text-[10px] font-medium uppercase tracking-wide truncate">
               {stat.label}
             </p>
           </div>
-          <p className="text-2xl font-bold">
+          <p className="text-xl lg:text-2xl font-bold">
             {stat.value}{stat.suffix || ''}
           </p>
         </div>
