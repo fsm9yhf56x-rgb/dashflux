@@ -42,7 +42,7 @@ export default function MacroTransitionProbs({ currentRegime, regimeScores }: Pr
       // Ajuster pour que la somme = 100% exactement
       const sum = Object.values(probs).reduce((a, b) => a + b, 0);
       if (sum !== 100) {
-        probs[current] += (100 - sum);
+        (probs as any)[current] += (100 - sum);
       }
       
       setTransitionProbs(probs);

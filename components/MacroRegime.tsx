@@ -83,7 +83,7 @@ export default function MacroRegimeCard({ regime }: Props) {
         {showHistory && <MacroHistoryCompact currentRegime={regime} />}
         
         {/* Probabilités (collapsible) */}
-        {showProbs && <MacroTransitionProbs currentRegime={regimeType} regimeScores={regime.scores} />}
+        {showProbs && <MacroTransitionProbs currentRegime={regimeType} regimeScores={(regime as any).scores} />}
       </div>
     );
   }
@@ -134,7 +134,7 @@ export default function MacroRegimeCard({ regime }: Props) {
         </div>
         
         {showHistory && <MacroHistoryCompact currentRegime={regime} />}
-        {showProbs && <MacroTransitionProbs currentRegime={regimeType} regimeScores={regime.scores} />}
+        {showProbs && <MacroTransitionProbs currentRegime={regimeType} regimeScores={(regime as any).scores} />}
       </div>
     );
   }
@@ -185,7 +185,7 @@ export default function MacroRegimeCard({ regime }: Props) {
         </div>
         
         {showHistory && <MacroHistoryCompact currentRegime={regime} />}
-        {showProbs && <MacroTransitionProbs currentRegime={regimeType} regimeScores={regime.scores} />}
+        {showProbs && <MacroTransitionProbs currentRegime={regimeType} regimeScores={(regime as any).scores} />}
       </div>
     );
   }
@@ -236,7 +236,7 @@ export default function MacroRegimeCard({ regime }: Props) {
         </div>
         
         {showHistory && <MacroHistoryCompact currentRegime={regime} />}
-        {showProbs && <MacroTransitionProbs currentRegime={regimeType} regimeScores={regime.scores} />}
+        {showProbs && <MacroTransitionProbs currentRegime={regimeType} regimeScores={(regime as any).scores} />}
       </div>
     );
   }

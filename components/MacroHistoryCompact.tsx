@@ -104,12 +104,10 @@ export default function MacroHistoryCompact({ currentRegime }: Props) {
                   border: '1px solid #374151',
                   borderRadius: '8px'
                 }}
-                formatter={(value: any, name: string, props: any) => {
-                  return [
-                    `${value}% confiance`,
-                    getRegimeLabel(props.payload.regime)
-                  ];
-                }}
+ formatter={((value: any, name: string, props: any) => [
+  `${value}% confiance`,
+  getRegimeLabel(props?.payload?.regime || 'unknown')
+]) as any}
               />
               <Line 
                 type="monotone" 

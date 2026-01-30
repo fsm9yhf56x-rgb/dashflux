@@ -248,7 +248,7 @@ export default function Home() {
 
             {scores.length > 0 && (
               <div className="mb-6">
-                <DashboardStats scores={scores} regime={regime} />
+                <DashboardStats scores={scores} {...(regime && { regime })} />
               </div>
             )}
 

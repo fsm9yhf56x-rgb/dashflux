@@ -74,20 +74,20 @@ export async function detectMacroRegime(): Promise<MacroRegime> {
     // 6. TLT/SPY Ratio (Bonds vs Stocks) - Risk On/Off indicator
     const tltSpyRatio = (tltPrices && spyPrices) ? calculateRatio(tltPrices, spyPrices) : 1;
     const tltSpyTrend = (tltPrices && spyPrices) ? calculateTrend(
-      tltPrices.map((tlt, i) => tlt / (spyPrices[i] || 1))
+      tltPrices.map((tlt: number, i: number) => tlt / (spyPrices[i] || 1))
     ) : 'neutral';
     
     // 7. HYG/LQD Ratio (High Yield vs Investment Grade) - Risk Appetite
     const hygPrices = await fetchYahooData('HYG', 60);
     const lqdPrices = await fetchYahooData('LQD', 60);
     const hygLqdTrend = (hygPrices && lqdPrices) ? calculateTrend(
-      hygPrices.map((hyg, i) => hyg / (lqdPrices[i] || 1))
+      hygPrices.map((hyg: number, i: number) => hyg / (lqdPrices[i] || 1))
     ) : 'neutral';
     
     // 8. Copper/Gold Ratio (Economic Growth proxy)
     const copperPrices = await fetchYahooData('COPX', 60); // Copper ETF
     const copperGoldTrend = (copperPrices && gldPrices) ? calculateTrend(
-      copperPrices.map((cop, i) => cop / (gldPrices[i] || 1))
+      copperPrices.map((cop: number, i: number) => cop / (gldPrices[i] || 1))
     ) : 'neutral';
     
     // 9. Yield Spread (10Y - 3M) - Recession indicator
@@ -329,7 +329,7 @@ export async function detectMacroRegime(): Promise<MacroRegime> {
     
     console.log(`✅ Detected: ${type.toUpperCase()} (confidence: ${confidence}%)`);
     
-    return regimes[type];
+    return regimes[type] as MacroRegime;
     
   } catch (error) {
     console.error('❌ Error detecting macro regime:', error);
@@ -352,7 +352,7 @@ export async function detectMacroRegime(): Promise<MacroRegime> {
         stagflation: 25,
         recession: 25
       }
-    };
+    } as MacroRegime;
   }
 }
 

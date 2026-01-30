@@ -546,29 +546,31 @@ export async function calculateAssetScore(
   if (data.length === 0) {
     console.log(`⚠️ No data for ${asset.ticker}, returning zero score`);
     return {
-      ticker: asset.ticker,
-      name: asset.name,
-      category: asset.category,
-      score: 0,
-      emergentScore: 0,
-      momentum: 0,
-      volatility: 0,
-      trend: 0,
-      lastPrice: 0,
-      change1M: 0,
-      change3M: 0,
-      change6M: 0,
-      recommendation: 'AVOID',
-      confidence: 0,
-      emergentDetails: {
-        contrarian: 0,
-        catalysts: 0,
-        technicalEarly: 0,
-        rotation: 0,
-        seasonality: 0,
-        positioning: 0,
-      }
-    };
+  ticker: asset.ticker,
+  name: asset.name,
+  category: asset.category,
+  score: 0,
+  technicalScore: 0,  // 🔥 AJOUTEZ CETTE LIGNE
+  emergentScore: 0,
+  momentum: 0,
+  volatility: 0,
+  trend: 0,
+  lastPrice: 0,
+  change1M: 0,
+  change3M: 0,
+  change6M: 0,
+  recommendation: 'AVOID',
+  confidence: 0,
+  explanation: 'Aucune donnée disponible pour cet asset',  // 🔥 AJOUTEZ CETTE LIGNE
+  emergentDetails: {
+    contrarian: 0,
+    catalysts: 0,
+    technicalEarly: 0,
+    rotation: 0,
+    seasonality: 0,
+    positioning: 0,
+  }
+} as AssetScore;
   }
   
   const momentum = calculateMomentumScore(data);

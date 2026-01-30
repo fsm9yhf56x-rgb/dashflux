@@ -27,6 +27,7 @@ export interface AssetScore {
   change6M: number;
   recommendation: 'ACCUMULATE' | 'WATCH' | 'HOLD' | 'TRIM' | 'AVOID';
   confidence: number;
+  explanation?: string;
   emergentDetails: {
     contrarian: number;
     catalysts: number;

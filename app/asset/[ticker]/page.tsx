@@ -416,11 +416,11 @@ export default function AssetDetailPage() {
               Informations Complémentaires
             </h3>
             <div className="space-y-3">
-              {assetData.relativeStrengthInfo && assetData.relativeStrengthInfo.rsRatio !== undefined && (
+              {assetData.relativeStrengthInfo && (assetData.relativeStrengthInfo as any).rsRatio !== undefined && (
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 dark:text-[#9ca3af]">Force Relative vs SPY</span>
                   <span className={`font-bold ${getScoreColor(assetData.relativeStrengthInfo.score || 0)}`}>
-                    {getValue(assetData.relativeStrengthInfo.rsRatio, 1).toFixed(2)}
+                    {getValue((assetData.relativeStrengthInfo as any).rsRatio, 1).toFixed(2)}
                   </span>
                 </div>
               )}
