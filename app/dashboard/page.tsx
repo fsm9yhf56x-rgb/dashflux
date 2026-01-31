@@ -6,18 +6,15 @@ import MacroRegimeCard from '@/components/MacroRegime';
 import TopEmergents from '@/components/TopEmergents';
 import ScoresTable from '@/components/ScoresTable';
 import Link from 'next/link';
-import ScoreChart from '@/components/ScoreChart';
 import ChangelogModal from '@/components/ChangelogModal';
 import ChangelogButton from '@/components/ChangelogButton';
 import { hasSeenChangelog, markChangelogAsSeen } from '@/lib/changelogVersion';
-import EmergentScoreComparison from '@/components/EmergentScoreComparison';
 import LoadingSkeleton from '@/components/LoadingSkeleton';
 import DashboardStats from '@/components/DashboardStats';
 import EventNotificationManager from '@/components/EventNotificationManager';
 import { useSettings } from '@/contexts/SettingsContext';
-import { RefreshCw, Moon, Sun, AlertTriangle, X } from 'lucide-react';
-import MobileNav from '@/components/MobileNav';
-import ResponsiveScoresView from '@/components/ResponsiveScoresView';
+import { RefreshCw, Moon, Sun, AlertTriangle, X, Search, Menu } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 // ✅ Composant Bannière d'Avertissement
 function DataWarningBanner() {
@@ -53,6 +50,7 @@ function DataWarningBanner() {
 
 export default function Home() {
   const { settings, getRecommendation } = useSettings();
+  const router = useRouter();
   
   const [scores, setScores] = useState<AssetScore[]>([]);
   const [regime, setRegime] = useState<MacroRegime | null>(null);
@@ -61,6 +59,8 @@ export default function Home() {
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [darkMode, setDarkMode] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     setMounted(true);
@@ -131,12 +131,101 @@ export default function Home() {
     settings.showEmergentFirst
   ]);
 
+  // Filtrer les scores pour la recherche mobile
+  const filteredScores = searchTerm
+    ? scores.filter(s => 
+        s.ticker.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        s.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : scores;
+
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-[#0f1419] transition-colors duration-200">
       <EventNotificationManager />
       
-      {/* 🆕 Mobile Navigation */}
-      <MobileNav onRefresh={fetchData} isRefreshing={loading} />
+      {/* 🆕 MOBILE NAVIGATION - INLINE */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-[#18181b] border-b border-gray-200 dark:border-gray-800 z-50">
+        <div className="flex items-center justify-between p-4">
+          {/* Logo */}
+          <Link href="/dashboard" className="flex items-center">
+            <h1 className="text-xl font-bold">
+              <span className="text-[#ff6b35]">Dash</span>
+              <span className="text-gray-900 dark:text-white">Flux</span>
+            </h1>
+          </Link>
+
+          {/* Actions Mobile */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleDarkMode}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              aria-label="Toggle dark mode"
+            >
+              {darkMode ? (
+                <Sun className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              ) : (
+                <Moon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              )}
+            </button>
+
+            <button
+              onClick={fetchData}
+              disabled={loading}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+              aria-label="Refresh"
+            >
+              <RefreshCw className={`w-5 h-5 text-gray-600 dark:text-gray-400 ${loading ? 'animate-spin' : ''}`} />
+            </button>
+
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              aria-label="Menu"
+            >
+              <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu Dropdown */}
+        {mobileMenuOpen && (
+          <div className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-[#18181b]">
+            <nav className="flex flex-col p-2">
+              <Link
+                href="/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-4 py-3 rounded-lg font-medium text-gray-900 dark:text-white bg-orange-50 dark:bg-orange-900/20"
+              >
+                Dashboard
+              </Link>
+              <Link
+                href="/methodologie"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                Méthodologie
+              </Link>
+              <Link
+                href="/calendrier"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                Calendrier
+              </Link>
+              <Link
+                href="/parametres"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                Paramètres
+              </Link>
+            </nav>
+          </div>
+        )}
+      </div>
+
+      {/* Spacer pour mobile nav fixe */}
+      <div className="lg:hidden h-16"></div>
       
       {/* Header Desktop - Caché sur mobile */}
       <div className="hidden lg:block px-4 sm:px-6 lg:px-8 py-6">
@@ -270,9 +359,102 @@ export default function Home() {
                   <ScoresTable scores={scores} />
                 </div>
 
-                {/* Cards Mobile */}
-                <div className="lg:hidden">
-                  <ResponsiveScoresView scores={scores} />
+                {/* 🆕 CARDS MOBILE - INLINE VERSION SIMPLE */}
+                <div className="lg:hidden space-y-4">
+                  {/* Barre de recherche mobile */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Rechercher un actif..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 bg-white dark:bg-[#27272a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#ff6b35] text-base"
+                    />
+                  </div>
+
+                  {/* Compteur résultats */}
+                  <p className="text-sm text-gray-600 dark:text-gray-400 px-1">
+                    {filteredScores.length} actif{filteredScores.length > 1 ? 's' : ''}
+                  </p>
+
+                  {/* Cards */}
+                  <div className="space-y-3">
+                    {filteredScores.map((asset) => (
+                      <div
+                        key={asset.ticker}
+                        onClick={() => router.push(`/asset/${asset.ticker}`)}
+                        className="bg-white dark:bg-[#1a1f27] rounded-lg p-4 border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-[#ff6b35] transition-colors active:scale-[0.98]"
+                      >
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-bold text-gray-900 dark:text-white truncate">
+                              {asset.name}
+                            </h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                              {asset.ticker}
+                            </p>
+                          </div>
+                          <span className={`px-3 py-1 rounded text-xs font-bold whitespace-nowrap ml-2 ${
+                            asset.recommendation === 'ACCUMULATE' ? 'bg-orange-600 text-white' :
+                            asset.recommendation === 'WATCH' ? 'bg-orange-400 text-white' :
+                            asset.recommendation === 'HOLD' ? 'bg-gray-400 text-white' :
+                            'bg-gray-300 text-gray-700'
+                          }`}>
+                            {asset.recommendation}
+                          </span>
+                        </div>
+                        
+                        {/* Scores Grid */}
+                        <div className="grid grid-cols-3 gap-2">
+                          <div className="text-center p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Global</p>
+                            <p className="text-lg font-bold text-gray-900 dark:text-white">
+                              {asset.score}
+                            </p>
+                          </div>
+                          <div className="text-center p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Actuel</p>
+                            <p className="text-lg font-bold text-gray-900 dark:text-white">
+                              {asset.technicalScore}
+                            </p>
+                          </div>
+                          <div className="text-center p-2 bg-orange-50 dark:bg-orange-900/20 rounded border border-orange-300 dark:border-orange-700">
+                            <p className="text-xs text-orange-600 dark:text-orange-400 mb-1">Émergent</p>
+                            <p className="text-lg font-bold text-orange-600 dark:text-orange-400">
+                              {asset.emergentScore}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Performances */}
+                        <div className="mt-3 flex gap-2">
+                          <div className={`flex-1 text-center py-1 px-2 rounded text-xs font-medium ${
+                            (asset.change1M || 0) > 0 
+                              ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' 
+                              : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
+                          }`}>
+                            1M: {(asset.change1M || 0) > 0 ? '+' : ''}{(asset.change1M || 0).toFixed(1)}%
+                          </div>
+                          <div className={`flex-1 text-center py-1 px-2 rounded text-xs font-medium ${
+                            (asset.change3M || 0) > 0 
+                              ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' 
+                              : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
+                          }`}>
+                            3M: {(asset.change3M || 0) > 0 ? '+' : ''}{(asset.change3M || 0).toFixed(1)}%
+                          </div>
+                          <div className={`flex-1 text-center py-1 px-2 rounded text-xs font-medium ${
+                            (asset.change6M || 0) > 0 
+                              ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' 
+                              : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
+                          }`}>
+                            6M: {(asset.change6M || 0) > 0 ? '+' : ''}{(asset.change6M || 0).toFixed(1)}%
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </>
             )}
