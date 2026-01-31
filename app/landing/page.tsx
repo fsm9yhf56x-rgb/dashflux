@@ -227,7 +227,7 @@ export default function LandingPage() {
           {[
             { value: '65', label: 'Assets Analysés' },
             { value: '13', label: 'Piliers Émergents' },
-            { value: '8/10', label: 'Piliers Live' },
+            { value: '11/13', label: 'Piliers Live' },
             { value: '3-6', label: 'Mois d\'Anticipation' },
           ].map(({ value, label }) => (
             <div key={label} className={`${darkMode ? 'bg-[#1a1f2e]/50' : 'bg-white/70'} backdrop-blur-sm rounded-xl p-4 sm:p-6 text-center shadow-lg border ${darkMode ? 'border-[#ff6b35]/20' : 'border-orange-200'} hover:scale-105 transition-transform`}>
