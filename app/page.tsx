@@ -99,20 +99,7 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* Feature 2 */}
-            <div className="bg-gray-50 dark:bg-[#0f1419] rounded-xl p-6 sm:p-8 border-2 border-transparent hover:border-[#ff6b35] transition-all">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-orange-100 dark:bg-orange-900/20 rounded-xl flex items-center justify-center mb-4">
-                <Target className="w-6 h-6 sm:w-7 sm:h-7 text-[#ff6b35]" />
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3 text-gray-900 dark:text-white">
-                Méthodologie Steffan
-              </h3>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                Basé sur l'approche macro top-down de Rodolphe Steffan pour identifier où l'action se passe.
-              </p>
-            </div>
-
-            {/* Feature 3 */}
+                    {/* Feature 3 */}
             <div className="bg-gray-50 dark:bg-[#0f1419] rounded-xl p-6 sm:p-8 border-2 border-transparent hover:border-[#ff6b35] transition-all">
               <div className="w-12 h-12 sm:w-14 sm:h-14 bg-orange-100 dark:bg-orange-900/20 rounded-xl flex items-center justify-center mb-4">
                 <BarChart3 className="w-6 h-6 sm:w-7 sm:h-7 text-[#ff6b35]" />

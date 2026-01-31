@@ -525,7 +525,7 @@ export default function Home() {
                 <p>📊 <strong className="text-white">13 Piliers</strong> prédictifs</p>
                 <p>📈 <strong className="text-white">65 Assets</strong> analysés</p>
                 <p>⚡ <strong className="text-white">Temps réel</strong></p>
-                <p>🎯 Méthodologie <strong className="text-white"></strong></p>
+                <p><strong className="text-white"></strong></p>
               </div>
             </div>
           </div>
