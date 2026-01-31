@@ -231,14 +231,14 @@ export default function Home() {
         )}
       </div>
 
-      {/* Spacer pour mobile nav fixe */}
+      {/* Spacer pour mobile nav fixe - MOBILE UNIQUEMENT */}
       <div className="lg:hidden h-16"></div>
       
       {/* Header Desktop - Caché sur mobile */}
-      <div className="hidden lg:block px-4 sm:px-6 lg:px-8 py-6">
+      <div className="hidden lg:block px-4 sm:px-6 lg:px-8 py-4">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-4">
             <div>
               <h1 
                 className="text-6xl font-bold text-gray-900 dark:text-[#f5f5f5] mb-2"
@@ -314,7 +314,7 @@ export default function Home() {
 
           {/* Last Update */}
           {mounted && lastUpdate && (
-            <div className="text-right mb-6">
+            <div className="text-right mb-3">
               <p className="text-sm text-gray-500 dark:text-[#71717a]">
                 Dernière MAJ: {lastUpdate.toLocaleString('fr-FR')}
               </p>
@@ -324,7 +324,7 @@ export default function Home() {
       </div>
 
       {/* Contenu Principal - Responsive */}
-      <div className="px-4 lg:px-8 py-4 lg:py-6 max-w-7xl mx-auto space-y-4 lg:space-y-6">
+      <div className="px-4 lg:px-8 py-3 lg:py-4 max-w-7xl mx-auto space-y-4 lg:space-y-6">
         {/* Last Update Mobile */}
         {mounted && lastUpdate && (
           <div className="lg:hidden text-right">
