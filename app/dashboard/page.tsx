@@ -475,6 +475,75 @@ export default function Home() {
           </p>
         </div>
       </div>
+
+      {/* 🆕 FOOTER */}
+      <footer className="bg-gray-900 dark:bg-[#0a0a0a] text-white mt-12 lg:mt-16 border-t border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+          {/* Top Section */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            {/* Logo & Description */}
+            <div>
+              <h3 
+                className="text-2xl sm:text-3xl font-bold mb-3 text-white"
+                style={{
+                  fontFamily: 'Impact, "Arial Black", sans-serif',
+                  fontStyle: 'italic',
+                  transform: 'skewX(-8deg)',
+                  letterSpacing: '-0.02em'
+                }}
+              >
+                DashFlux
+              </h3>
+              <p className="text-sm text-gray-400 leading-relaxed">
+                Dashboard intelligent multi-assets avec scoring émergent pour anticiper les mouvements de marché 3 à 6 mois à l'avance.
+              </p>
+            </div>
+
+            {/* Navigation Links */}
+            <div>
+              <h4 className="font-bold text-white mb-3 text-sm sm:text-base">Navigation</h4>
+              <nav className="space-y-2">
+                <Link href="/dashboard" className="block text-sm text-gray-400 hover:text-[#ff6b35] transition-colors">
+                  Dashboard
+                </Link>
+                <Link href="/methodologie" className="block text-sm text-gray-400 hover:text-[#ff6b35] transition-colors">
+                  Méthodologie
+                </Link>
+                <Link href="/calendrier" className="block text-sm text-gray-400 hover:text-[#ff6b35] transition-colors">
+                  Calendrier Économique
+                </Link>
+                <Link href="/parametres" className="block text-sm text-gray-400 hover:text-[#ff6b35] transition-colors">
+                  Paramètres
+                </Link>
+              </nav>
+            </div>
+
+            {/* Infos */}
+            <div>
+              <h4 className="font-bold text-white mb-3 text-sm sm:text-base">Informations</h4>
+              <div className="space-y-2 text-sm text-gray-400">
+                <p>📊 <strong className="text-white">13 Piliers</strong> prédictifs</p>
+                <p>📈 <strong className="text-white">65 Assets</strong> analysés</p>
+                <p>⚡ <strong className="text-white">Temps réel</strong></p>
+                <p>🎯 Méthodologie <strong className="text-white"></strong></p>
+              </div>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-gray-800 mb-6"></div>
+
+          {/* Bottom Section */}
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+            <p>
+              © {new Date().getFullYear()} DashFlux. Tous droits réservés.
+            </p>
+            <p className="text-center sm:text-right">
+              Outil éducatif uniquement • Pas de conseil en investissement
+            </p>
+          </div>
+        </div>
+      </footer>
       
       {/* Modal Changelog */}
       <ChangelogModal isOpen={showChangelog} onClose={handleCloseChangelog} />

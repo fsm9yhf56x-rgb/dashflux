@@ -185,44 +185,74 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* Footer - OPTIMISÉ MOBILE */}
-      <div className="bg-gray-900 dark:bg-[#0a0a0a] text-white py-8 sm:py-12">
+      {/* Footer - OPTIMISÉ MOBILE & COMPLET */}
+      <footer className="bg-gray-900 dark:bg-[#0a0a0a] text-white py-8 sm:py-12 border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h3 
-              className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4"
-              style={{
-                fontFamily: 'Impact, "Arial Black", sans-serif',
-                fontStyle: 'italic',
-                transform: 'skewX(-8deg)',
-                letterSpacing: '-0.02em'
-              }}
-            >
-              DashFlux
-            </h3>
-            <p className="text-sm sm:text-base text-gray-400 mb-4 sm:mb-6 px-4">
-              Dashboard intelligent multi-assets avec scoring émergent
-            </p>
-            <div className="flex flex-wrap justify-center gap-4 sm:gap-6 mb-6 sm:mb-8 text-sm">
-              <Link href="/dashboard" className="hover:text-[#ff6b35] transition-colors">
-                Dashboard
-              </Link>
-              <Link href="/methodologie" className="hover:text-[#ff6b35] transition-colors">
-                Méthodologie
-              </Link>
-              <Link href="/calendrier" className="hover:text-[#ff6b35] transition-colors">
-                Calendrier
-              </Link>
-              <Link href="/parametres" className="hover:text-[#ff6b35] transition-colors">
-                Paramètres
-              </Link>
+          {/* Top Section */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            {/* Logo & Description */}
+            <div className="text-center md:text-left">
+              <h3 
+                className="text-2xl sm:text-3xl font-bold mb-3 text-white"
+                style={{
+                  fontFamily: 'Impact, "Arial Black", sans-serif',
+                  fontStyle: 'italic',
+                  transform: 'skewX(-8deg)',
+                  letterSpacing: '-0.02em'
+                }}
+              >
+                DashFlux
+              </h3>
+              <p className="text-sm text-gray-400 leading-relaxed">
+                Dashboard intelligent multi-assets avec scoring émergent pour anticiper les mouvements de marché 3 à 6 mois à l'avance.
+              </p>
             </div>
-            <p className="text-xs sm:text-sm text-gray-500">
-              © 2026 DashFlux. Outil éducatif uniquement. Pas de conseil en investissement.
+
+            {/* Navigation Links */}
+            <div className="text-center md:text-left">
+              <h4 className="font-bold text-white mb-3 text-sm sm:text-base">Navigation</h4>
+              <nav className="space-y-2">
+                <Link href="/dashboard" className="block text-sm text-gray-400 hover:text-[#ff6b35] transition-colors">
+                  Dashboard
+                </Link>
+                <Link href="/methodologie" className="block text-sm text-gray-400 hover:text-[#ff6b35] transition-colors">
+                  Méthodologie
+                </Link>
+                <Link href="/calendrier" className="block text-sm text-gray-400 hover:text-[#ff6b35] transition-colors">
+                  Calendrier Économique
+                </Link>
+                <Link href="/parametres" className="block text-sm text-gray-400 hover:text-[#ff6b35] transition-colors">
+                  Paramètres
+                </Link>
+              </nav>
+            </div>
+
+            {/* Infos */}
+            <div className="text-center md:text-left">
+              <h4 className="font-bold text-white mb-3 text-sm sm:text-base">Informations</h4>
+              <div className="space-y-2 text-sm text-gray-400">
+                <p>📊 <strong className="text-white">13 Piliers</strong> prédictifs</p>
+                <p>📈 <strong className="text-white">65 Assets</strong> analysés</p>
+                <p>⚡ <strong className="text-white">Temps réel</strong></p>
+                <p>🎯 Méthodologie <strong className="text-white">Steffan</strong></p>
+              </div>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-gray-800 mb-6"></div>
+
+          {/* Bottom Section */}
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+            <p>
+              © {new Date().getFullYear()} DashFlux. Tous droits réservés.
+            </p>
+            <p className="text-center sm:text-right">
+              Outil éducatif uniquement • Pas de conseil en investissement
             </p>
           </div>
         </div>
-      </div>
+      </footer>
     </div>
   );
 }
