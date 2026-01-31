@@ -95,7 +95,7 @@ export default function LandingPage() {
                 Score Émergent Unique
               </h3>
               <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                Détecte les opportunités 3 à 6 mois avant le marché grâce à 10 piliers prédictifs avancés.
+                Détecte les opportunités 1 à 6 mois avant le marché grâce à 13 piliers prédictifs avancés.
               </p>
             </div>
 
@@ -191,7 +191,7 @@ export default function LandingPage() {
                 DashFlux
               </h3>
               <p className="text-sm text-gray-400 leading-relaxed">
-                Dashboard intelligent multi-assets avec scoring émergent pour anticiper les mouvements de marché 3 à 6 mois à l'avance.
+                Dashboard intelligent multi-assets avec scoring émergent pour anticiper les mouvements de marché 1 à 6 mois à l'avance.
               </p>
             </div>
 
@@ -221,7 +221,6 @@ export default function LandingPage() {
                 <p>📊 <strong className="text-white">13 Piliers</strong> prédictifs</p>
                 <p>📈 <strong className="text-white">65 Assets</strong> analysés</p>
                 <p>⚡ <strong className="text-white">Temps réel</strong></p>
-                <p>🎯 Méthodologie <strong className="text-white">Steffan</strong></p>
               </div>
             </div>
           </div>
