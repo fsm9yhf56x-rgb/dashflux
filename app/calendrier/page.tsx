@@ -110,7 +110,7 @@ export default function CalendrierPage() {
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <CalendarIcon className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-                <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">
                   Calendrier Économique
                 </h1>
               </div>
@@ -224,7 +224,7 @@ export default function CalendrierPage() {
                 
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-4 flex-1">
-                    <div className="text-4xl">{getCategoryIcon(event.category)}</div>
+                    <div className="text-2xl sm:text-3xl lg:text-4xl">{getCategoryIcon(event.category)}</div>
 
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">

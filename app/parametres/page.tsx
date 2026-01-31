@@ -40,7 +40,7 @@ export default function SettingsPage() {
               <ArrowLeft className="w-4 h-4" />
               Retour au Dashboard
             </Link>
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
               <Settings className="w-10 h-10 text-[#ff6b35]" />
               Paramètres
             </h1>

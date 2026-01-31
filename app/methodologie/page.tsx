@@ -18,7 +18,7 @@ export default function MethodologyPage() {
 
         {/* Header */}
         <div className="mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Méthodologie DashFlux
           </h1>
           <p className="text-xl text-gray-600 dark:text-[#d4d4d8]">
@@ -45,7 +45,7 @@ export default function MethodologyPage() {
 
         {/* Introduction */}
         <div className="bg-white dark:bg-[#1a1f2e] rounded-xl shadow-lg p-8 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <Activity className="w-6 h-6 text-[#ffd93d]" />
             Vue d'ensemble
           </h2>
@@ -90,7 +90,7 @@ export default function MethodologyPage() {
 
         {/* Score Technique */}
         <div className="bg-white dark:bg-[#1a1f2e] rounded-xl shadow-lg p-8 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
             <TrendingUp className="w-6 h-6 text-blue-500" />
             Score Technique (30%)
           </h2>
@@ -140,7 +140,7 @@ export default function MethodologyPage() {
 
         {/* Score Émergent - 10 Piliers (sur 13 totaux) */}
         <div className="bg-white dark:bg-[#1a1f2e] rounded-xl shadow-lg p-8 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
             <Zap className="w-6 h-6 text-[#ffd93d]" />
             Score Émergent (40%) - 10 Piliers
           </h2>
@@ -358,7 +358,7 @@ export default function MethodologyPage() {
 
         {/* Nouveaux Piliers v2.1 */}
         <div className="bg-white dark:bg-[#1a1f2e] rounded-xl shadow-lg p-8 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
             <Zap className="w-6 h-6 text-[#ff6b35]" />
             Piliers v2.1 (30%) - 3 Nouveaux Piliers
           </h2>
@@ -434,7 +434,7 @@ export default function MethodologyPage() {
 
         {/* Score Composite */}
         <div className="bg-white dark:bg-[#1a1f2e] rounded-xl shadow-lg p-8 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <Target className="w-6 h-6 text-[#ffd93d]" />
             Score Composite Final
           </h2>
@@ -450,23 +450,23 @@ export default function MethodologyPage() {
 
           <div className="mt-6 grid grid-cols-1 md:grid-cols-5 gap-4">
             <div className="bg-green-100 dark:bg-green-900/30 rounded-lg p-4 text-center">
-              <p className="text-2xl font-bold text-green-700 dark:text-green-400 mb-1">≥80</p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-green-700 dark:text-green-400 mb-1">≥80</p>
               <p className="text-sm font-semibold text-gray-700 dark:text-[#d4d4d8]">TRÈS FAVORABLE</p>
             </div>
             <div className="bg-blue-100 dark:bg-blue-900/30 rounded-lg p-4 text-center">
-              <p className="text-2xl font-bold text-blue-700 dark:text-blue-400 mb-1">65-79</p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-700 dark:text-blue-400 mb-1">65-79</p>
               <p className="text-sm font-semibold text-gray-700 dark:text-[#d4d4d8]">FAVORABLE</p>
             </div>
             <div className="bg-yellow-100 dark:bg-yellow-900/30 rounded-lg p-4 text-center">
-              <p className="text-2xl font-bold text-yellow-700 dark:text-[#ffd93d] mb-1">45-64</p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-yellow-700 dark:text-[#ffd93d] mb-1">45-64</p>
               <p className="text-sm font-semibold text-gray-700 dark:text-[#d4d4d8]">NEUTRE</p>
             </div>
             <div className="bg-orange-100 dark:bg-orange-900/30 rounded-lg p-4 text-center">
-              <p className="text-2xl font-bold text-orange-700 dark:text-orange-400 mb-1">30-44</p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-orange-700 dark:text-orange-400 mb-1">30-44</p>
               <p className="text-sm font-semibold text-gray-700 dark:text-[#d4d4d8]">DÉFAVORABLE</p>
             </div>
             <div className="bg-red-100 dark:bg-red-900/30 rounded-lg p-4 text-center">
-              <p className="text-2xl font-bold text-red-700 dark:text-red-400 mb-1">&lt;30</p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-red-700 dark:text-red-400 mb-1">&lt;30</p>
               <p className="text-sm font-semibold text-gray-700 dark:text-[#d4d4d8]">TRÈS DÉFAVORABLE</p>
             </div>
           </div>
