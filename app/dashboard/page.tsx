@@ -148,9 +148,16 @@ export default function Home() {
         <div className="flex items-center justify-between p-4">
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center">
-            <h1 className="text-xl font-bold">
-              <span className="text-[#ff6b35]">Dash</span>
-              <span className="text-gray-900 dark:text-white">Flux</span>
+            <h1 
+              className="text-2xl font-bold text-gray-900 dark:text-white"
+              style={{
+                fontFamily: 'Impact, "Arial Black", sans-serif',
+                fontStyle: 'italic',
+                transform: 'skewX(-8deg)',
+                letterSpacing: '-0.02em'
+              }}
+            >
+              DashFlux
             </h1>
           </Link>
 
