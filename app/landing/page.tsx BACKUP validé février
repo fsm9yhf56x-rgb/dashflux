@@ -1,0 +1,717 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { ArrowRight, TrendingUp, TrendingDown, CheckCircle, XCircle, Trophy, Target } from 'lucide-react';
+
+export default function LandingPage() {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-white text-gray-900 overflow-hidden" style={{ fontFamily: 'Inter, -apple-system, sans-serif' }}>
+      
+      {/* LIQUID BLOBS BACKGROUND - AMPLIFIÉS */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden opacity-30">
+        <svg width="100%" height="100%" viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <linearGradient id="liquidGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#e0e7ff" stopOpacity="0.5">
+                <animate attributeName="stopOpacity" values="0.3;0.6;0.3" dur="8s" repeatCount="indefinite"/>
+              </stop>
+              <stop offset="100%" stopColor="#ddd6fe" stopOpacity="0.3">
+                <animate attributeName="stopOpacity" values="0.2;0.5;0.2" dur="10s" repeatCount="indefinite"/>
+              </stop>
+            </linearGradient>
+            <linearGradient id="liquidGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#fae8ff" stopOpacity="0.4">
+                <animate attributeName="stopOpacity" values="0.2;0.5;0.2" dur="9s" repeatCount="indefinite"/>
+              </stop>
+              <stop offset="100%" stopColor="#e9d5ff" stopOpacity="0.3">
+                <animate attributeName="stopOpacity" values="0.15;0.4;0.15" dur="11s" repeatCount="indefinite"/>
+              </stop>
+            </linearGradient>
+            <filter id="gooey">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="50" result="blur"/>
+              <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 35 -12" result="goo"/>
+              <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+            </filter>
+          </defs>
+          <g filter="url(#gooey)">
+            {/* Blob 1 - Haut gauche */}
+            <ellipse cx="200" cy="150" fill="url(#liquidGrad1)">
+              <animate attributeName="rx" values="180;240;180" dur="18s" repeatCount="indefinite"/>
+              <animate attributeName="ry" values="240;180;240" dur="18s" repeatCount="indefinite"/>
+              <animate attributeName="cx" values="200;300;200" dur="22s" repeatCount="indefinite"/>
+              <animate attributeName="cy" values="150;100;150" dur="25s" repeatCount="indefinite"/>
+            </ellipse>
+            {/* Blob 2 - Haut droite */}
+            <ellipse cx="1100" cy="200" fill="url(#liquidGrad2)">
+              <animate attributeName="rx" values="220;280;220" dur="20s" repeatCount="indefinite"/>
+              <animate attributeName="ry" values="280;220;280" dur="20s" repeatCount="indefinite"/>
+              <animate attributeName="cx" values="1100;1000;1100" dur="24s" repeatCount="indefinite"/>
+            </ellipse>
+            {/* Blob 3 - Centre */}
+            <ellipse cx="700" cy="400" fill="url(#liquidGrad1)">
+              <animate attributeName="rx" values="250;200;250" dur="22s" repeatCount="indefinite"/>
+              <animate attributeName="ry" values="200;250;200" dur="22s" repeatCount="indefinite"/>
+              <animate attributeName="cx" values="700;750;700" dur="26s" repeatCount="indefinite"/>
+            </ellipse>
+            {/* Blob 4 - Bas gauche */}
+            <ellipse cx="300" cy="700" fill="url(#liquidGrad2)">
+              <animate attributeName="rx" values="200;260;200" dur="21s" repeatCount="indefinite"/>
+              <animate attributeName="ry" values="260;200;260" dur="21s" repeatCount="indefinite"/>
+              <animate attributeName="cy" values="700;650;700" dur="27s" repeatCount="indefinite"/>
+            </ellipse>
+            {/* Blob 5 - Bas droite */}
+            <ellipse cx="1050" cy="750" fill="url(#liquidGrad1)">
+              <animate attributeName="rx" values="240;190;240" dur="19s" repeatCount="indefinite"/>
+              <animate attributeName="ry" values="190;240;190" dur="19s" repeatCount="indefinite"/>
+              <animate attributeName="cx" values="1050;1100;1050" dur="23s" repeatCount="indefinite"/>
+            </ellipse>
+            {/* Blob 6 - Milieu droite */}
+            <ellipse cx="1200" cy="500" fill="url(#liquidGrad2)">
+              <animate attributeName="rx" values="210;270;210" dur="23s" repeatCount="indefinite"/>
+              <animate attributeName="ry" values="270;210;270" dur="23s" repeatCount="indefinite"/>
+            </ellipse>
+          </g>
+        </svg>
+      </div>
+
+      {/* NAVBAR GLASSMORPHISM - AGRANDIE */}
+      <nav className="fixed top-0 left-0 right-0 z-50 glass-nav">
+        <div className="max-w-7xl mx-auto px-8 py-8 flex items-center justify-between">
+          <Link href="/" className="group">
+            <h1 
+              className="text-5xl font-black tracking-tight text-gray-900 mb-1"
+              style={{
+                fontFamily: 'Impact, "Arial Black", sans-serif',
+                fontStyle: 'italic',
+                transform: 'skewX(-8deg)',
+              }}
+            >
+              DashFlux
+            </h1>
+            <p className="text-sm text-gray-600 font-medium">Dashboard Multi-Assets</p>
+          </Link>
+          <div className="flex items-center gap-8">
+            <Link href="/methodologie" className="text-base font-medium text-gray-600 hover:text-gray-900 transition-all">
+              Méthodologie
+            </Link>
+            <Link
+              href="/dashboard"
+              className="liquid-button-cta px-10 py-4 bg-gray-900 text-white rounded-full text-base font-semibold relative overflow-hidden group"
+            >
+              <span className="relative z-10">Accéder</span>
+              <div className="liquid-shine"></div>
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* HERO SECTION */}
+      <section className="relative pt-48 pb-20 px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            
+            {/* Left */}
+            <div className="fade-in-up">
+              <div className="inline-block mb-6">
+                <span className="px-4 py-2 rounded-full glass-badge text-sm font-medium tracking-wide gradient-text">
+                  Dashboard Prédictif Multi-Assets
+                </span>
+              </div>
+              
+              <h1 className="text-6xl lg:text-7xl font-bold mb-6 tracking-tight leading-[1.1]">
+                Anticipe les mouvements
+                <span className="block gradient-text mt-2">3 à 6 mois</span>
+                à l'avance
+              </h1>
+              
+              <p className="text-xl text-gray-600 leading-relaxed mb-10 max-w-xl">
+                Identifie les opportunités avec analyse multi-factorielle automatisée.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link
+                  href="/dashboard"
+                  className="liquid-button-primary group px-10 py-4 bg-gray-900 text-white rounded-full font-semibold text-lg inline-flex items-center justify-center gap-3 relative overflow-hidden"
+                >
+                  <span className="relative z-10">Voir le Dashboard</span>
+                  <ArrowRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" />
+                  <div className="liquid-shine"></div>
+                </Link>
+                <Link
+                  href="#comment-ca-marche"
+                  className="liquid-button-secondary px-10 py-4 glass-card text-gray-900 rounded-full font-semibold text-lg inline-flex items-center justify-center"
+                >
+                  Comment ça marche ?
+                </Link>
+              </div>
+
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-6 mt-12 pt-10 border-t border-gray-200">
+                {[
+                  { value: '65', label: 'Assets' },
+                  { value: '13', label: 'Piliers' },
+                  { value: '24/7', label: 'Temps réel' }
+                ].map((stat, idx) => (
+                  <div key={idx} className="fade-in-up" style={{ animationDelay: `${600 + idx * 100}ms` }}>
+                    <p className="text-4xl font-bold gradient-text mb-1">{stat.value}</p>
+                    <p className="text-sm text-gray-600">{stat.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right - Chart + Mini Track Record */}
+            <div className="relative fade-in-up" style={{ animationDelay: '200ms' }}>
+              
+              {/* Main Chart Card */}
+              <div className="glass-card p-8 rounded-3xl">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <p className="text-sm text-gray-500 mb-2">Exemple : Bitcoin</p>
+                    <p className="text-3xl font-bold">Score : <span className="gradient-text">78/100</span></p>
+                  </div>
+                  <div className="floating">
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-full glass-badge">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                      <span className="text-sm font-medium text-gray-700">Validé</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Chart */}
+                <div className="h-72">
+                  <svg viewBox="0 0 700 250" className="w-full h-full">
+                    <defs>
+                      <linearGradient id="chartGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#667eea" stopOpacity="0.3"/>
+                        <stop offset="50%" stopColor="#764ba2" stopOpacity="1"/>
+                        <stop offset="100%" stopColor="#a78bfa" stopOpacity="0.3"/>
+                      </linearGradient>
+                      <linearGradient id="chartFill" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#764ba2" stopOpacity="0.15"/>
+                        <stop offset="100%" stopColor="#764ba2" stopOpacity="0"/>
+                      </linearGradient>
+                    </defs>
+
+                    {/* Grid */}
+                    <line x1="0" y1="200" x2="700" y2="200" stroke="#e5e7eb" strokeWidth="1" strokeDasharray="4,4"/>
+                    <line x1="0" y1="125" x2="700" y2="125" stroke="#e5e7eb" strokeWidth="1" strokeDasharray="4,4"/>
+                    <line x1="0" y1="50" x2="700" y2="50" stroke="#e5e7eb" strokeWidth="1" strokeDasharray="4,4"/>
+
+                    {/* Area */}
+                    <path d="M 30,200 Q 180,185 260,75 T 520,60 L 670,30 L 670,225 L 30,225 Z" fill="url(#chartFill)"/>
+
+                    {/* Line */}
+                    <path
+                      d="M 30,200 Q 180,185 260,75 T 520,60 L 670,30"
+                      fill="none"
+                      stroke="url(#chartGrad)"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      className="draw-line-liquid"
+                    />
+                    
+                    {/* Points */}
+                    <g className="fade-in-up" style={{ animationDelay: '800ms' }}>
+                      <circle cx="260" cy="75" r="8" fill="#764ba2"/>
+                      <circle cx="260" cy="75" r="4" fill="white"/>
+                      <text x="260" y="105" textAnchor="middle" className="text-sm font-semibold fill-gray-700">BUY</text>
+                    </g>
+                    
+                    <g className="fade-in-up" style={{ animationDelay: '900ms' }}>
+                      <circle cx="520" cy="60" r="8" fill="#764ba2"/>
+                      <circle cx="520" cy="60" r="4" fill="white"/>
+                      <text x="520" y="45" textAnchor="middle" className="text-sm font-semibold fill-gray-700">SELL</text>
+                    </g>
+
+                    <text x="350" y="70" className="text-2xl font-bold fill-purple-600">+42%</text>
+                  </svg>
+                </div>
+
+                <div className="flex items-center justify-between text-sm text-gray-500 mt-4">
+                  <span>Jan 2024</span>
+                  <span className="font-semibold gradient-text">+42% gain</span>
+                  <span>Juin 2024</span>
+                </div>
+              </div>
+
+              {/* Mini Track Record */}
+              <div className="mt-6 glass-card p-6 rounded-2xl fade-in-up" style={{ animationDelay: '400ms' }}>
+                <div className="flex items-center gap-2 mb-4">
+                  <Trophy className="w-5 h-5 text-purple-500" />
+                  <p className="text-sm font-bold text-gray-700">Derniers signaux validés</p>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    { name: 'Or (Oct 2023)', result: '+15%' },
+                    { name: 'Tech (Évité crash)', result: '-22%' },
+                    { name: 'Crypto (Déc 2023)', result: '+28%' }
+                  ].map((item, idx) => (
+                    <div key={idx} className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">{item.name}</span>
+                      <span className="text-sm font-bold gradient-text">{item.result}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* DIVIDER LIQUIDE */}
+      <div className="relative h-px max-w-7xl mx-auto my-20">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-200 to-transparent liquid-divider"></div>
+      </div>
+
+      {/* PROBLÈME SECTION */}
+      <section className="py-20 px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl lg:text-6xl font-bold mb-4 tracking-tight">
+              Le problème classique
+            </h2>
+            <p className="text-xl text-gray-600">Acheter au sommet, vendre au creux</p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12">
+            
+            {/* Sans système */}
+            <div className="glass-card-subtle p-10 rounded-3xl hover-lift">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                  <XCircle className="w-6 h-6 text-gray-500" />
+                </div>
+                <h3 className="text-3xl font-bold">Trading Émotionnel</h3>
+              </div>
+
+              <div className="h-48 mb-8">
+                <svg viewBox="0 0 400 150" className="w-full h-full">
+                  <path d="M 20,100 L 100,50 L 200,40 L 300,120 L 380,130" fill="none" stroke="#9ca3af" strokeWidth="3" className="draw-line-liquid"/>
+                  <circle cx="200" cy="40" r="8" fill="#9ca3af"/>
+                  <text x="200" y="30" textAnchor="middle" className="text-xs font-bold fill-gray-500">BUY</text>
+                  <circle cx="300" cy="120" r="8" fill="#9ca3af"/>
+                  <text x="300" y="145" textAnchor="middle" className="text-xs font-bold fill-gray-500">SELL</text>
+                  <text x="255" y="70" className="text-1xl font-bold fill-gray-500">-35%</text>
+                </svg>
+              </div>
+
+              <ul className="space-y-4">
+                {['Acheter sur le FOMO', 'Vendre paniqué', 'Pas de méthode'].map((text, idx) => (
+                  <li key={idx} className="flex items-start gap-3 text-gray-600">
+                    <TrendingDown className="w-5 h-5 mt-1 flex-shrink-0 text-gray-400" />
+                    <span>{text}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Avec système */}
+            <div className="glass-card p-10 rounded-3xl hover-lift border border-purple-100">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center">
+                  <CheckCircle className="w-6 h-6 text-purple-500" />
+                </div>
+                <h3 className="text-3xl font-bold">Avec DashFlux</h3>
+              </div>
+
+              <div className="h-48 mb-8">
+                <svg viewBox="0 0 400 150" className="w-full h-full">
+                  <defs>
+                    <linearGradient id="successGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#667eea" stopOpacity="0.5"/>
+                      <stop offset="50%" stopColor="#764ba2" stopOpacity="1"/>
+                      <stop offset="100%" stopColor="#a78bfa" stopOpacity="0.5"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M 20,100 L 100,50 L 200,40 L 300,120 L 380,130" fill="none" stroke="url(#successGrad)" strokeWidth="3" className="draw-line-liquid"/>
+                  <circle cx="100" cy="50" r="8" fill="#764ba2"/>
+                  <text x="100" y="70" textAnchor="middle" className="text-xs font-bold fill-purple-600">BUY</text>
+                  <circle cx="200" cy="40" r="8" fill="#764ba2"/>
+                  <text x="200" y="30" textAnchor="middle" className="text-xs font-bold fill-purple-600">SELL</text>
+                  <text x="125" y="30" className="text-1xl font-bold fill-purple-600">+38%</text>
+                </svg>
+              </div>
+
+              <ul className="space-y-4">
+                {['Signaux objectifs', 'Vendre au bon moment', 'Scoring 13 facteurs'].map((text, idx) => (
+                  <li key={idx} className="flex items-start gap-3 text-gray-700">
+                    <TrendingUp className="w-5 h-5 mt-1 flex-shrink-0 text-purple-500" />
+                    <span>{text}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* DIVIDER */}
+      <div className="relative h-px max-w-7xl mx-auto my-20">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-200 to-transparent liquid-divider"></div>
+      </div>
+
+      {/* TRACK RECORD */}
+      <section className="py-20 px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <div className="inline-flex items-center gap-2 mb-6">
+              <Target className="w-5 h-5 text-purple-500" />
+              <span className="text-sm font-semibold gradient-text uppercase tracking-wide">Validation</span>
+            </div>
+            <h2 className="text-5xl lg:text-6xl font-bold mb-4 tracking-tight">
+              Track Record
+            </h2>
+            <p className="text-xl text-gray-600">Exemples récents de positions identifiées</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { asset: 'Or (GLD)', date: 'Oct 2023', score: 82, signal: 'Acheter', result: '+15%', period: '3 mois' },
+              { asset: 'Bitcoin', date: 'Jan 2024', score: 78, signal: 'Acheter', result: '+42%', period: '5 mois' },
+              { asset: 'Tech (QQQ)', date: 'Août 2024', score: 35, signal: 'Éviter', result: '-22%', period: 'Évité' },
+              { asset: 'Crypto (ETH)', date: 'Déc 2023', score: 75, signal: 'Acheter', result: '+28%', period: '4 mois' },
+            ].map((item, idx) => (
+              <div key={idx} className="glass-card p-6 rounded-3xl hover-lift">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="font-bold text-lg">{item.asset}</h3>
+                  <span className="text-xs text-gray-500">{item.date}</span>
+                </div>
+                
+                <div className="space-y-3 mb-6">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Score</span>
+                    <span className="font-bold">{item.score}<span className="text-gray-400">/100</span></span>
+                  </div>
+                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-indigo-400 to-purple-500 rounded-full liquid-progress" style={{ width: `${item.score}%` }}></div>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Signal</span>
+                    <span className="font-bold gradient-text">{item.signal}</span>
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t border-gray-100">
+                  <p className="text-4xl font-bold gradient-text mb-1">{item.result}</p>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide">{item.period}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* DIVIDER */}
+      <div className="relative h-px max-w-7xl mx-auto my-20">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-200 to-transparent liquid-divider"></div>
+      </div>
+
+      {/* COMMENT ÇA MARCHE */}
+      <section id="comment-ca-marche" className="py-20 px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-5xl lg:text-6xl font-bold mb-4 tracking-tight">
+              Comment ça marche
+            </h2>
+            <p className="text-xl text-gray-600">Analyse automatisée en 3 étapes</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-12">
+            {[
+              { num: '01', title: 'Collecte', desc: 'Récupération automatique des données de prix, volumes, indicateurs macro pour 65 actifs' },
+              { num: '02', title: 'Analyse', desc: 'Analyse multi-factorielle combinant momentum, macro, positionnement et 10 autres piliers' },
+              { num: '03', title: 'Signaux', desc: 'Scores de 0 à 100. >75 = Acheter fort. <40 = Éviter. Simple et actionnable' },
+            ].map((step, idx) => (
+              <div key={idx} className="text-center glass-card p-8 rounded-3xl hover-lift">
+                <div className="mb-8">
+                  <div className="w-20 h-20 rounded-full glass-card mx-auto mb-6 flex items-center justify-center">
+                    <span className="text-4xl font-black gradient-text">{step.num}</span>
+                  </div>
+                </div>
+                <h3 className="text-2xl font-bold mb-4">{step.title}</h3>
+                <p className="text-gray-600 leading-relaxed">{step.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* DIVIDER */}
+      <div className="relative h-px max-w-7xl mx-auto my-20">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-200 to-transparent liquid-divider"></div>
+      </div>
+
+      {/* LES 13 PILIERS */}
+      <section className="py-20 px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-5xl lg:text-6xl font-bold mb-4 tracking-tight">
+              Les 13 Piliers Prédictifs
+            </h2>
+            <p className="text-xl text-gray-600">Une analyse complète pour identifier les opportunités</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              { name: 'Momentum Technique', desc: 'Tendances et force' },
+              { name: 'Régime Macro', desc: 'Croissance, inflation' },
+              { name: 'Positionnement', desc: 'Flux institutionnels' },
+              { name: 'Sentiment', desc: 'Fear & Greed, VIX' },
+              { name: 'Saisonnalité', desc: 'Patterns temporels' },
+              { name: 'Corrélations', desc: 'Relations inter-actifs' },
+              { name: 'Valorisation', desc: 'Prix vs fondamentaux' },
+              { name: 'Liquidité Globale', desc: 'M2, bilan Fed/BCE' },
+              { name: 'Catalyseurs', desc: 'Events macro à venir' },
+              { name: 'Volatilité', desc: 'Risque et opportunité' },
+              { name: 'Volume', desc: 'Confirmation mouvements' },
+              { name: 'Divergences', desc: 'Signaux contrarian' },
+              { name: 'Cycles', desc: 'Position dans le cycle' },
+            ].map((pillar, idx) => (
+              <div key={idx} className="glass-card p-6 rounded-2xl hover-lift">
+                <div className="flex items-center gap-4 mb-2">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-bold gradient-text">{String(idx + 1).padStart(2, '0')}</span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900">{pillar.name}</h3>
+                    <p className="text-sm text-gray-500">{pillar.desc}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-16 text-center">
+            <Link href="/methodologie" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 font-semibold transition-colors">
+              En savoir plus sur la méthodologie
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA FINAL */}
+      <section className="py-32 px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="glass-card p-16 rounded-3xl">
+            <h2 className="text-5xl lg:text-6xl font-bold mb-6 tracking-tight">
+              Prêt à anticiper ?
+            </h2>
+            <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
+              Accède au dashboard complet et commence à analyser 65 actifs en temps réel
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <Link
+                href="/dashboard"
+                className="liquid-button-primary group px-12 py-5 bg-gray-900 text-white rounded-full font-bold text-lg inline-flex items-center justify-center gap-3 relative overflow-hidden"
+              >
+                <span className="relative z-10">Accéder au Dashboard</span>
+                <ArrowRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" />
+                <div className="liquid-shine"></div>
+              </Link>
+              <Link
+                href="/methodologie"
+                className="liquid-button-secondary px-12 py-5 glass-card text-gray-900 rounded-full font-bold text-lg inline-flex items-center justify-center"
+              >
+                Lire la Méthodologie
+              </Link>
+            </div>
+
+            <p className="mt-12 text-sm text-gray-500">
+              Outil éducatif uniquement • Pas de conseil en investissement
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="border-t border-gray-100 py-12 px-8">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <p className="text-sm text-gray-500">© 2025 DashFlux. Tous droits réservés.</p>
+          <div className="flex items-center gap-8">
+            <Link href="/mentions-legales" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">Mentions légales</Link>
+            <Link href="/confidentialite" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">Confidentialité</Link>
+            <Link href="/contact" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">Contact</Link>
+          </div>
+        </div>
+      </footer>
+
+      {/* STYLES */}
+      <style jsx>{`
+        /* Glass effects */
+        .glass-nav {
+          background: rgba(255, 255, 255, 0.7);
+          backdrop-filter: blur(20px) saturate(180%);
+          border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .glass-card {
+          background: rgba(255, 255, 255, 0.6);
+          backdrop-filter: blur(20px) saturate(180%);
+          border: 1px solid rgba(0, 0, 0, 0.05);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+        }
+
+        .glass-card-subtle {
+          background: rgba(255, 255, 255, 0.4);
+          backdrop-filter: blur(20px) saturate(180%);
+          border: 1px solid rgba(0, 0, 0, 0.03);
+          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
+        }
+
+        .glass-badge {
+          background: rgba(255, 255, 255, 0.5);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        /* Gradient text */
+        .gradient-text {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
+        /* Liquid buttons */
+        .liquid-button-primary,
+        .liquid-button-secondary {
+          transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .liquid-button-primary:hover {
+          transform: translateY(-2px) scale(1.05);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .liquid-button-secondary:hover {
+          transform: translateY(-2px) scale(1.02);
+          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+          border-color: rgba(118, 75, 162, 0.3);
+        }
+
+        /* Liquid shine effect */
+        .liquid-shine {
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+          transition: left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .liquid-button-primary:hover .liquid-shine,
+        .liquid-button-cta:hover .liquid-shine {
+          left: 100%;
+        }
+
+        /* Hover lift */
+        .hover-lift {
+          transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .hover-lift:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Liquid divider */
+        .liquid-divider {
+          animation: liquidFlow 8s ease-in-out infinite;
+        }
+
+        /* Progress bar */
+        .liquid-progress {
+          animation: liquidFill 2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+          transform-origin: left;
+        }
+
+        /* Floating */
+        .floating {
+          animation: float 3s ease-in-out infinite;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(40px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes drawLineLiquid {
+          from {
+            stroke-dasharray: 2000;
+            stroke-dashoffset: 2000;
+          }
+          to {
+            stroke-dasharray: 2000;
+            stroke-dashoffset: 0;
+          }
+        }
+
+        @keyframes liquidFlow {
+          0%, 100% {
+            transform: scaleX(1);
+            opacity: 1;
+          }
+          50% {
+            transform: scaleX(1.1);
+            opacity: 0.8;
+          }
+        }
+
+        @keyframes liquidFill {
+          from {
+            transform: scaleX(0);
+          }
+          to {
+            transform: scaleX(1);
+          }
+        }
+
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-8px);
+          }
+        }
+
+        .fade-in-up {
+          animation: fadeInUp 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .draw-line-liquid {
+          stroke-dasharray: 2000;
+          stroke-dashoffset: 2000;
+          animation: drawLineLiquid 3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+          animation-delay: 600ms;
+        }
+      `}</style>
+
+    </div>
+  );
+}

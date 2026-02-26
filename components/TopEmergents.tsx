@@ -1,215 +1,383 @@
 'use client';
 
 import { AssetScore } from '@/lib/types';
-import { ChevronDown, ChevronUp, ExternalLink, ArrowRight } from 'lucide-react';
-import { useState } from 'react';
+import { ChevronDown, ChevronUp, ExternalLink, ArrowRight, Zap } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface Props {
   scores: AssetScore[];
 }
 
+// ── Rank medals ───────────────────────────────────────────────────────────────
+const RANK_CONFIG = [
+  { gradient: 'linear-gradient(135deg,#fbbf24,#f59e0b)', shadow: 'rgba(251,191,36,0.35)', label: '#92400e' },
+  { gradient: 'linear-gradient(135deg,#c0c8d4,#8896a4)', shadow: 'rgba(156,163,175,0.35)', label: '#ffffff' },
+  { gradient: 'linear-gradient(135deg,#fb923c,#ea580c)', shadow: 'rgba(251,146,60,0.3)',  label: '#ffffff' },
+];
+
+// ── Score color ───────────────────────────────────────────────────────────────
+const scoreColor = (v: number) => v >= 75 ? '#16a34a' : v >= 50 ? '#d97706' : '#dc2626';
+const scoreBg    = (v: number) => v >= 75 ? 'rgba(34,197,94,0.09)' : v >= 50 ? 'rgba(245,158,11,0.09)' : 'rgba(239,68,68,0.09)';
+
+// ── Recommendation style ──────────────────────────────────────────────────────
+const RECO: Record<string, { bg: string; color: string; border: string }> = {
+  ACCUMULATE: { bg: 'rgba(124,58,237,0.09)',  color: '#7c3aed', border: 'rgba(124,58,237,0.25)' },
+  WATCH:      { bg: 'rgba(99,102,241,0.08)',  color: '#6366f1', border: 'rgba(99,102,241,0.2)'  },
+  HOLD:       { bg: 'rgba(107,114,128,0.07)', color: 'var(--text-muted)', border: 'rgba(107,114,128,0.18)'},
+  TRIM:       { bg: 'rgba(249,115,22,0.08)',  color: '#f97316', border: 'rgba(249,115,22,0.2)'  },
+  AVOID:      { bg: 'rgba(239,68,68,0.07)',   color: '#ef4444', border: 'rgba(239,68,68,0.18)'  },
+};
+
+// ── Count-up hook ─────────────────────────────────────────────────────────────
+function useCountUp(target: number, started: boolean) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (!started) return;
+    const dur = 800, s = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min((now - s) / dur, 1);
+      const e = 1 - Math.pow(1 - p, 3);
+      setValue(Math.round(e * target));
+      if (p < 1) requestAnimationFrame(tick);
+      else setValue(target);
+    };
+    requestAnimationFrame(tick);
+  }, [target, started]);
+  return value;
+}
+
+// ── Score circle with count-up ────────────────────────────────────────────────
+function ScoreCircle({ value, label, highlighted, started }: {
+  value: number; label: string; highlighted?: boolean; started: boolean;
+}) {
+  const display = useCountUp(value, started);
+  const r = RECO.ACCUMULATE;
+  return (
+    <div style={{ textAlign: 'center', minWidth: 60 }}>
+      <p style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>
+        {label}
+      </p>
+      <div style={{
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+        width: highlighted ? 52 : 44, height: highlighted ? 52 : 44, borderRadius: '50%',
+        background: highlighted ? 'rgba(124,58,237,0.08)' : scoreBg(value),
+        border: highlighted ? '2px solid rgba(124,58,237,0.35)' : `1.5px solid ${scoreColor(value)}30`,
+        boxShadow: highlighted ? '0 0 0 4px rgba(124,58,237,0.06)' : 'none',
+        transition: 'all 0.3s ease',
+      }}>
+        <span style={{
+          fontSize: highlighted ? 16 : 14,
+          fontWeight: 800,
+          color: highlighted ? '#7c3aed' : scoreColor(value),
+          fontVariantNumeric: 'tabular-nums',
+        }}>
+          {display}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ── Emergent card ─────────────────────────────────────────────────────────────
+function EmergentCard({ asset, index, onNavigate }: {
+  asset: AssetScore; index: number; onNavigate: (ticker: string) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const [hovered,  setHovered]  = useState(false);
+  const [visible,  setVisible]  = useState(false);
+  const ref   = useRef<HTMLDivElement>(null);
+  const frame = useRef<number>(0);
+  const rank  = RANK_CONFIG[index] ?? RANK_CONFIG[2];
+  const reco  = RECO[asset.recommendation] ?? RECO.HOLD;
+
+  // Stagger entrance
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(true), index * 120 + 60);
+    return () => clearTimeout(t);
+  }, [index]);
+
+  // Spotlight
+  const onMouseMove = useCallback((e: React.MouseEvent) => {
+    const el = ref.current; if (!el) return;
+    cancelAnimationFrame(frame.current);
+    frame.current = requestAnimationFrame(() => {
+      const r = el.getBoundingClientRect();
+      const x = ((e.clientX - r.left) / r.width) * 100;
+      const y = ((e.clientY - r.top) / r.height) * 100;
+      el.style.backgroundImage = `radial-gradient(circle 120px at ${x}% ${y}%, rgba(124,58,237,0.05), transparent)`;
+    });
+  }, []);
+
+  const onMouseLeave = useCallback(() => {
+    const el = ref.current; if (el) el.style.backgroundImage = '';
+    setHovered(false);
+  }, []);
+
+  const getTopPillar = () => {
+    if (!asset.emergentDetails) return { name: 'Momentum', value: asset.momentum };
+    const pillars = [
+      { name: 'Contrarian',  value: asset.emergentDetails.contrarian },
+      { name: 'Catalyseurs', value: asset.emergentDetails.catalysts },
+      { name: 'Technique',   value: asset.emergentDetails.technicalEarly },
+      { name: 'Rotation',    value: asset.emergentDetails.rotation },
+    ];
+    return pillars.sort((a, b) => b.value - a.value)[0];
+  };
+  const topPillar = getTopPillar();
+
+  return (
+    <div ref={ref}
+      onMouseEnter={() => setHovered(true)}
+      onMouseMove={onMouseMove}
+      onMouseLeave={onMouseLeave}
+      style={{
+        background: hovered ? 'var(--glass-bg)' : 'var(--glass-hover)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        border: `1.5px solid ${hovered ? 'rgba(124,58,237,0.25)' : 'var(--border)'}`,
+        borderRadius: 14,
+        padding: '14px 16px',
+        boxShadow: hovered
+          ? '0 8px 24px rgba(124,58,237,0.08), 0 2px 8px rgba(0,0,0,0.04)'
+          : '0 2px 8px rgba(0,0,0,0.03)',
+        cursor: 'pointer',
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(16px)',
+        transition: `opacity 0.5s cubic-bezier(0.16,1,0.3,1) ${index * 120}ms,
+                     transform 0.5s cubic-bezier(0.16,1,0.3,1) ${index * 120}ms,
+                     border-color 0.25s ease, box-shadow 0.25s ease, background 0.2s ease`,
+      }}
+      onClick={() => setExpanded(v => !v)}
+    >
+      {/* ── Main row ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+
+        {/* Rank medal */}
+        <div style={{
+          width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
+          background: rank.gradient,
+          boxShadow: `0 4px 12px ${rank.shadow}`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 16, fontWeight: 800, color: rank.label,
+          transition: 'transform 0.4s cubic-bezier(0.34,1.56,0.64,1)',
+          transform: hovered ? 'scale(1.12) rotate(-5deg)' : 'scale(1)',
+        }}>
+          {index + 1}
+        </div>
+
+        {/* Name + top pillar */}
+        <div style={{ flex: 1, minWidth: 100 }}>
+          <div style={{
+            fontSize: 14, fontWeight: 800, color: hovered ? '#7c3aed' : 'var(--text-primary)',
+            display: 'flex', alignItems: 'center', gap: 6,
+            transition: 'color 0.2s ease',
+          }}>
+            {asset.name}
+            <ExternalLink style={{
+              width: 11, height: 11,
+              opacity: hovered ? 1 : 0,
+              transform: hovered ? 'translate(2px,-1px)' : 'none',
+              transition: 'opacity 0.2s, transform 0.3s cubic-bezier(0.34,1.56,0.64,1)',
+              color: '#7c3aed',
+            }}/>
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--text-faint)', marginTop: 1 }}>
+            {asset.ticker}
+            <span style={{ margin: '0 4px', opacity: 0.4 }}>·</span>
+            <span style={{ color: 'var(--text-muted)' }}>Top pilier: </span>
+            <span style={{ fontWeight: 600, color: '#4b5563' }}>{topPillar.name} ({topPillar.value})</span>
+          </div>
+        </div>
+
+        {/* Score circles */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+          <ScoreCircle value={asset.score}         label="Actuel"  started={visible} />
+          <ScoreCircle value={asset.emergentScore} label="Émergent" highlighted started={visible} />
+        </div>
+
+        {/* Reco pill */}
+        <span style={{
+          padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700,
+          background: reco.bg, color: reco.color, border: `1px solid ${reco.border}`,
+          flexShrink: 0,
+        }}>
+          {asset.recommendation}
+        </span>
+
+        {/* Expand icon */}
+        <div style={{
+          width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: hovered ? 'rgba(124,58,237,0.07)' : 'rgba(0,0,0,0.03)',
+          transition: 'background 0.2s, transform 0.3s cubic-bezier(0.34,1.56,0.64,1)',
+          transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+        }}>
+          <ChevronDown style={{ width: 14, height: 14, color: hovered ? '#7c3aed' : 'var(--text-faint)' }}/>
+        </div>
+      </div>
+
+      {/* ── Expanded details ── */}
+      <div style={{
+        overflow: 'hidden',
+        maxHeight: expanded ? 400 : 0,
+        opacity: expanded ? 1 : 0,
+        transition: 'max-height 0.45s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease',
+      }}>
+        {asset.emergentDetails && (
+          <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--border)' }}>
+            {/* Pillar mini-bars */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 12 }}>
+              {[
+                { name: 'Contrarian',  v: asset.emergentDetails.contrarian },
+                { name: 'Catalyseurs', v: asset.emergentDetails.catalysts },
+                { name: 'Technique',   v: asset.emergentDetails.technicalEarly },
+                { name: 'Rotation',    v: asset.emergentDetails.rotation },
+              ].map(p => (
+                <div key={p.name} style={{
+                  background: 'var(--bg-subtle)', borderRadius: 10, padding: '10px 8px',
+                  border: '1px solid var(--glass-border)', textAlign: 'center',
+                }}>
+                  <p style={{ fontSize: 10, color: 'var(--text-faint)', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>
+                    {p.name}
+                  </p>
+                  <p style={{ fontSize: 18, fontWeight: 800, color: scoreColor(p.v) }}>
+                    {p.v}
+                  </p>
+                  {/* Mini progress bar */}
+                  <div style={{ marginTop: 4, height: 3, borderRadius: 99, background: 'var(--border)', overflow: 'hidden' }}>
+                    <div style={{
+                      height: '100%', width: `${p.v}%`, borderRadius: 99,
+                      background: scoreColor(p.v),
+                      transition: 'width 0.6s cubic-bezier(0.16,1,0.3,1)',
+                    }}/>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* CTA insight */}
+            <div style={{
+              padding: '10px 14px', borderRadius: 10, marginBottom: 10,
+              background: 'rgba(124,58,237,0.05)',
+              border: '1px solid rgba(124,58,237,0.15)',
+              display: 'flex', alignItems: 'center', gap: 8,
+            }}>
+              <Zap style={{ width: 13, height: 13, color: '#7c3aed', flexShrink: 0 }}/>
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#7c3aed' }}>
+                {asset.recommendation === 'ACCUMULATE' ? 'Fenêtre d\'opportunité 1-2 mois' :
+                 asset.recommendation === 'WATCH'      ? 'Signal d\'entrée imminent' :
+                 'Surveiller les catalyseurs'}
+              </span>
+            </div>
+
+            {/* Navigate button */}
+            <button
+              onClick={e => { e.stopPropagation(); onNavigate(asset.ticker); }}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                gap: 8, padding: '10px 16px', borderRadius: 10,
+                background: 'linear-gradient(135deg, #7c3aed, #6366f1)', color: '#fff', border: 'none',
+                fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                transition: 'background 0.2s, transform 0.3s cubic-bezier(0.34,1.56,0.64,1)',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#1f2937'; e.currentTarget.style.transform = 'scale(1.01)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-dark, #111827)'; e.currentTarget.style.transform = ''; }}
+            >
+              <ExternalLink style={{ width: 13, height: 13 }}/>
+              Analyse complète de {asset.ticker}
+              <ArrowRight style={{ width: 13, height: 13 }}/>
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
 export default function TopEmergentAssets({ scores }: Props) {
   const router = useRouter();
-  const [expanded, setExpanded] = useState<number | null>(null);
+  const [headerVisible, setHeaderVisible] = useState(false);
 
-  // Trier par score émergent
+  useEffect(() => {
+    const t = setTimeout(() => setHeaderVisible(true), 30);
+    return () => clearTimeout(t);
+  }, []);
+
   const topEmergent = [...scores]
     .sort((a, b) => b.emergentScore - a.emergentScore)
     .slice(0, 3);
 
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-orange-600 dark:text-[#ff6b35]';
-    if (score >= 65) return 'text-orange-500 dark:text-[#ff8c5f]';
-    return 'text-gray-600 dark:text-[#a1a1aa]';
-  };
-
-  const getRecommendationStyle = (rec?: string) => {
-    switch (rec) {
-      case 'ACCUMULATE': return 'bg-orange-600 hover:bg-orange-700 dark:bg-[#ff6b35] dark:hover:bg-[#e55a2b] text-white';
-      case 'WATCH': return 'bg-orange-400 hover:bg-orange-500 dark:bg-[#ff8c5f] dark:hover:bg-[#ff6b35] text-white';
-      case 'HOLD': return 'bg-gray-400 hover:bg-gray-500 dark:bg-[#71717a] dark:hover:bg-[#5f5f67] text-white';
-      case 'TRIM': return 'bg-gray-300 hover:bg-gray-400 dark:bg-[#3d424d] dark:hover:bg-[#4a515c] text-gray-700 dark:text-[#d4d4d8]';
-      default: return 'bg-gray-300 hover:bg-gray-400 dark:bg-[#3d424d] dark:hover:bg-[#4a515c] text-gray-600 dark:text-[#a1a1aa]';
-    }
-  };
-
-  const getRankEmoji = (index: number) => {
-    return ['🥇', '🥈', '🥉'][index];
-  };
-
-  const getTopPillar = (asset: AssetScore) => {
-    if (!asset.emergentDetails) {
-      return { name: 'Momentum', value: asset.momentum };
-    }
-    
-    const pillars = [
-      { name: 'Contrarian', value: asset.emergentDetails.contrarian },
-      { name: 'Catalyseurs', value: asset.emergentDetails.catalysts },
-      { name: 'Technique', value: asset.emergentDetails.technicalEarly },
-      { name: 'Rotation', value: asset.emergentDetails.rotation },
-    ];
-
-    return pillars.sort((a, b) => b.value - a.value)[0];
-  };
-
-  const handleViewDetails = (ticker: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    router.push(`/asset/${ticker}`);
-  };
-
   return (
-    <div className="bg-white dark:bg-[#1a1f27] rounded-lg shadow-lg p-4 lg:p-6 border-2 border-orange-200 dark:border-[#ff6b35] relative overflow-hidden">
-      {/* Effet glow orange */}
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-50 dark:from-[#ff6b35]/5 to-transparent pointer-events-none"></div>
-      
-      <div className="relative">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
-          <div className="flex items-center gap-2 lg:gap-3">
-            <div className="w-2.5 h-2.5 lg:w-3 lg:h-3 rounded-full bg-orange-500 dark:bg-[#ff6b35] animate-pulse"></div>
-            <h2 className="text-lg lg:text-xl font-bold text-gray-900 dark:text-[#f5f5f5]">
-              Top 3 Émergents
-            </h2>
-          </div>
-          <p className="text-xs lg:text-sm text-gray-500 dark:text-[#71717a]">
-            Anticipation 1-3 mois
-          </p>
-        </div>
+    <div style={{
+      background: 'var(--glass-bg)',
+      backdropFilter: 'var(--glass-blur)',
+      WebkitBackdropFilter: 'var(--glass-blur)',
+      border: '1.5px solid var(--border-card)',
+      borderRadius: 20,
+      padding: '18px 20px',
+      boxShadow: '0 4px 24px rgba(0,0,0,0.05)',
+    }}>
 
-        {/* Cards */}
-        <div className="space-y-3">
-          {topEmergent.map((asset, index) => {
-            const isExpanded = expanded === index;
-            const topPillar = getTopPillar(asset);
-
-            return (
-              <div
-                key={asset.ticker}
-                onClick={() => setExpanded(isExpanded ? null : index)}
-                className="bg-gray-50 dark:bg-[#252b36] rounded-lg p-3 lg:p-4 border border-gray-200 dark:border-[#3d424d] hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-lg cursor-pointer transition-all duration-200 group"
-              >
-                {/* Ligne principale */}
-                <div className="flex flex-col lg:flex-row items-start lg:items-center gap-3 lg:gap-4">
-                  {/* Gauche : Rank + Asset */}
-                  <div className="flex items-center gap-2 lg:gap-3 flex-1 min-w-0 w-full lg:w-auto">
-                    <span className="text-2xl lg:text-3xl flex-shrink-0">{getRankEmoji(index)}</span>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm lg:text-base font-bold text-gray-900 dark:text-[#f5f5f5] truncate">
-                        {asset.name}
-                      </h3>
-                      <p className="text-xs lg:text-sm text-gray-600 dark:text-[#a1a1aa] truncate">
-                        {asset.ticker} • {topPillar.name}: {topPillar.value}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Centre : Scores */}
-                  <div className="flex items-center gap-2 lg:gap-3 flex-shrink-0 w-full lg:w-auto">
-                    <div className="text-center min-w-[50px] lg:min-w-[60px]">
-                      <p className="text-[10px] lg:text-xs text-gray-500 dark:text-[#71717a] mb-1">Actuel</p>
-                      <p className="text-lg lg:text-xl font-bold text-gray-700 dark:text-[#d4d4d8]">
-                        {asset.score}
-                      </p>
-                    </div>
-                    <div className="text-center flex-1 lg:min-w-[80px] px-2 lg:px-3 py-1.5 lg:py-2 bg-orange-100 dark:bg-[#ff6b35]/10 rounded-lg border-2 border-orange-400 dark:border-[#ff6b35]">
-                      <p className="text-[10px] lg:text-xs text-orange-700 dark:text-[#ff6b35] font-semibold mb-1">Émergent</p>
-                      <p className={`text-lg lg:text-xl font-bold ${getScoreColor(asset.emergentScore)}`}>
-                        {asset.emergentScore}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Droite : Recommandation + Boutons */}
-                  <div className="flex items-center gap-2 flex-shrink-0 w-full lg:w-auto">
-                    <span className={`text-[10px] lg:text-xs font-bold px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg whitespace-nowrap ${getRecommendationStyle(asset.recommendation)} flex-1 lg:flex-initial text-center`}>
-                      {asset.recommendation}
-                    </span>
-                    
-                    {/* Bouton Voir Détails - Cache label sur très petit écran */}
-                    <button
-                      onClick={(e) => handleViewDetails(asset.ticker, e)}
-                      className="flex items-center justify-center gap-1 px-2 lg:px-3 py-2 lg:py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold rounded-lg transition-all hover:scale-105 active:scale-95 min-w-[40px] lg:min-w-auto"
-                      title="Voir l'analyse complète"
-                    >
-                      <ExternalLink className="w-3 h-3 lg:w-4 lg:h-4" />
-                      <span className="hidden sm:inline text-[10px] lg:text-xs">Détails</span>
-                    </button>
-                    
-                    {/* Chevron Expand */}
-                    <div className="hover:bg-gray-200 dark:hover:bg-gray-700 rounded p-1 transition-colors">
-                      {isExpanded ? (
-                        <ChevronUp className="w-4 h-4 lg:w-5 lg:h-5 text-gray-500 dark:text-[#a1a1aa] flex-shrink-0" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4 lg:w-5 lg:h-5 text-gray-500 dark:text-[#a1a1aa] flex-shrink-0" />
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Détails dépliables */}
-                {isExpanded && asset.emergentDetails && (
-                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-[#3d424d]">
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-3">
-                      <div className="text-center p-2 lg:p-3 bg-white dark:bg-[#1a1f27] rounded-lg border border-gray-200 dark:border-[#3d424d]">
-                        <p className="text-[10px] lg:text-xs text-gray-500 dark:text-[#71717a] mb-1">Contrarian</p>
-                        <p className={`text-base lg:text-lg font-bold ${getScoreColor(asset.emergentDetails.contrarian)}`}>
-                          {asset.emergentDetails.contrarian}
-                        </p>
-                      </div>
-                      <div className="text-center p-2 lg:p-3 bg-white dark:bg-[#1a1f27] rounded-lg border border-gray-200 dark:border-[#3d424d]">
-                        <p className="text-[10px] lg:text-xs text-gray-500 dark:text-[#71717a] mb-1">Catalyseurs</p>
-                        <p className={`text-base lg:text-lg font-bold ${getScoreColor(asset.emergentDetails.catalysts)}`}>
-                          {asset.emergentDetails.catalysts}
-                        </p>
-                      </div>
-                      <div className="text-center p-2 lg:p-3 bg-white dark:bg-[#1a1f27] rounded-lg border border-gray-200 dark:border-[#3d424d]">
-                        <p className="text-[10px] lg:text-xs text-gray-500 dark:text-[#71717a] mb-1">Technique</p>
-                        <p className={`text-base lg:text-lg font-bold ${getScoreColor(asset.emergentDetails.technicalEarly)}`}>
-                          {asset.emergentDetails.technicalEarly}
-                        </p>
-                      </div>
-                      <div className="text-center p-2 lg:p-3 bg-white dark:bg-[#1a1f27] rounded-lg border border-gray-200 dark:border-[#3d424d]">
-                        <p className="text-[10px] lg:text-xs text-gray-500 dark:text-[#71717a] mb-1">Rotation</p>
-                        <p className={`text-base lg:text-lg font-bold ${getScoreColor(asset.emergentDetails.rotation)}`}>
-                          {asset.emergentDetails.rotation}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-3 p-2 lg:p-3 bg-orange-50 dark:bg-[#2f3542] rounded-lg border border-orange-200 dark:border-[#3d424d]">
-                      <span className="text-orange-700 dark:text-[#ff8c5f] font-bold text-sm lg:text-base">
-                        🎯 {asset.recommendation}
-                      </span>
-                      <span className="text-gray-700 dark:text-[#d4d4d8] text-xs lg:text-sm"> - {
-                        asset.recommendation === 'ACCUMULATE' 
-                          ? 'Fenêtre d\'opportunité 1-2 mois'
-                          : asset.recommendation === 'WATCH'
-                          ? 'Signal d\'entrée imminent'
-                          : 'Surveiller les catalyseurs'
-                      }</span>
-                    </div>
-                    
-                    {/* Bouton Voir Analyse Complète (version expanded) */}
-                    <button
-                      onClick={(e) => handleViewDetails(asset.ticker, e)}
-                      className="mt-3 w-full flex items-center justify-center gap-2 px-3 lg:px-4 py-2.5 lg:py-3 bg-blue-500 hover:bg-blue-600 text-white text-sm lg:text-base font-bold rounded-lg transition-all hover:scale-[1.02] active:scale-95"
-                    >
-                      <ExternalLink className="w-3 h-3 lg:w-4 lg:h-4" />
-                      <span className="truncate">Voir l'analyse complète de {asset.ticker}</span>
-                      <ArrowRight className="w-3 h-3 lg:w-4 lg:h-4 flex-shrink-0" />
-                    </button>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Footer */}
-        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-[#3d424d] text-xs lg:text-sm text-gray-500 dark:text-[#71717a] text-center">
-          💡 <span className="hidden sm:inline">Cliquez sur une carte pour déplier • </span>Bouton <ExternalLink className="w-3 h-3 inline" /> pour l'analyse complète
+      {/* Header */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        marginBottom: 16,
+        opacity: headerVisible ? 1 : 0,
+        transform: headerVisible ? 'none' : 'translateY(8px)',
+        transition: 'opacity 0.4s ease, transform 0.4s ease',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {/* Animated violet dot */}
+          <span style={{ position: 'relative', display: 'inline-flex', width: 10, height: 10 }}>
+            <span style={{
+              position: 'absolute', inset: 0, borderRadius: '50%',
+              background: '#7c3aed', opacity: 0.3,
+              animation: 'topEmgPing 2s cubic-bezier(0,0,0.2,1) infinite',
+            }}/>
+            <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#7c3aed' }}/>
+          </span>
+          <h2 style={{ fontSize: 17, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+            Top 3 Émergents
+          </h2>
+          <span style={{
+            fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
+            background: 'rgba(124,58,237,0.08)', color: '#7c3aed',
+            border: '1px solid rgba(124,58,237,0.2)',
+            textTransform: 'uppercase', letterSpacing: '0.06em',
+          }}>
+            Anticipation 1–3 mois
+          </span>
         </div>
       </div>
+
+      {/* Cards */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {topEmergent.map((asset, i) => (
+          <EmergentCard
+            key={asset.ticker}
+            asset={asset}
+            index={i}
+            onNavigate={t => router.push(`/asset/${t}`)}
+          />
+        ))}
+      </div>
+
+      {/* Footer */}
+      <p style={{
+        marginTop: 14, paddingTop: 12,
+        borderTop: '1px solid var(--border)',
+        fontSize: 11, color: 'var(--text-faint)', textAlign: 'center',
+      }}>
+        Cliquez sur une carte pour déplier les piliers · Bouton analyse complète pour le détail
+      </p>
+
+      <style>{`
+        @keyframes topEmgPing {
+          75%, 100% { transform: scale(2.5); opacity: 0; }
+        }
+      `}</style>
     </div>
   );
 }

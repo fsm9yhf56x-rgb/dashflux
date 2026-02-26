@@ -27,7 +27,7 @@ export const ASSETS: Asset[] = [
   { ticker: 'NVDA', name: 'Nvidia', category: 'equity' },
   { ticker: 'TSLA', name: 'Tesla', category: 'equity' },
 
-// === EUROPE ===
+  // === EUROPE ===
   { ticker: 'UBI.PA', name: 'Ubisoft', category: 'equity' },
   
   // === AI & SEMICONDUCTORS (3) ===
@@ -131,7 +131,7 @@ async function fetchYahooData(ticker: string): Promise<PriceData[]> {
     
     const timestamps = data.chart.result[0].timestamp;
     const closes = data.chart.result[0].indicators.quote[0].close;
-    const volumes = data.chart.result[0].indicators.quote[0].volume;  // ✅ Volume
+    const volumes = data.chart.result[0].indicators.quote[0].volume;
     
     if (!timestamps || !closes) {
       console.warn(`⚠️ Missing timestamps or closes for ${ticker}`);
@@ -141,7 +141,7 @@ async function fetchYahooData(ticker: string): Promise<PriceData[]> {
     return timestamps.map((ts: number, i: number) => ({
       date: new Date(ts * 1000).toISOString().split('T')[0],
       close: closes[i],
-      volume: volumes?.[i] || undefined  // ✅ Volume (undefined si absent)
+      volume: volumes?.[i] || undefined
     })).filter((d: PriceData) => d.close !== null);
   } catch (error) {
     return [];
@@ -313,7 +313,7 @@ function calculateSeasonalityScore(asset: Asset): number {
 }
 
 // =====================================
-// SCORE ÉMERGENT (10 Piliers - part of 13 total pillars in v2.1)
+// SCORE ÉMERGENT (11 Piliers avec News ✅)
 // =====================================
 
 function calculateContrarianScore(data: PriceData[], momentum: number): number {
@@ -423,17 +423,41 @@ async function calculateEmergentScore(
   const macroData = calculateMacroRegionalScore(asset.ticker);
   const macroScore = macroData.score;
   
+  // 🔥 PILIER 11 : NEWS SENTIMENT
+  let newsScore = 50;
+  let newsExplanation = 'Analyse indisponible';
+  let newsSentiment = 'neutral';
+  
+  try {
+    const { getNewsSentiments } = await import('./newsAnalysis');
+    const sentiments = await getNewsSentiments();
+    const assetNews = sentiments.find(s => s.ticker === asset.ticker);
+    
+    if (assetNews) {
+      newsScore = assetNews.score;
+      newsExplanation = assetNews.summary;
+      newsSentiment = assetNews.sentiment;
+      console.log(`📰 News for ${asset.ticker}: ${newsScore}/100 (${newsSentiment})`);
+    } else {
+      console.log(`📰 No news data for ${asset.ticker}, using neutral 50`);
+    }
+  } catch (error) {
+    console.warn(`⚠️ News sentiment error for ${asset.ticker}:`, error);
+  }
+  
+  // 🔥 NOUVELLE FORMULE 11 PILIERS (total = 100%)
   const emergentScore = 
-    (contrarian * 0.12) +
-    (catalysts * 0.16) +
-    (technicalEarly * 0.10) +
-    (rotation * 0.08) +
-    (seasonality * 0.05) +
-    (positioningScore * 0.12) +
-    (relativeStrength * 0.10) +
-    (drawdownScore * 0.09) +
-    (valuationScore * 0.10) +
-    (macroScore * 0.08);
+    (contrarian * 0.11) +        // 11% (était 12%)
+    (catalysts * 0.14) +         // 14% (était 16%)
+    (technicalEarly * 0.09) +    // 9% (était 10%)
+    (rotation * 0.07) +          // 7% (était 8%)
+    (seasonality * 0.04) +       // 4% (était 5%)
+    (positioningScore * 0.11) +  // 11% (était 12%)
+    (relativeStrength * 0.09) +  // 9% (était 10%)
+    (drawdownScore * 0.08) +     // 8% (était 9%)
+    (valuationScore * 0.09) +    // 9% (était 10%)
+    (macroScore * 0.08) +        // 8% (inchangé)
+    (newsScore * 0.10);          // 10% ✅ NOUVEAU
   
   return {
     score: Math.round(emergentScore),
@@ -448,6 +472,9 @@ async function calculateEmergentScore(
       drawdown: Math.round(drawdownScore),
       valuation: Math.round(valuationScore),
       macroRegional: Math.round(macroScore),
+      news: Math.round(newsScore),              // ✅ NOUVEAU
+      newsExplanation: newsExplanation,         // ✅ NOUVEAU
+      newsSentiment: newsSentiment,             // ✅ NOUVEAU
     }
   };
 }
@@ -460,15 +487,13 @@ async function calculateV2Extension(
   data: PriceData[],
   technicalScore: number,
   emergentScore: number,
-  ticker: string  // ✅ Ajout ticker pour fetch 13F
+  ticker: string
 ) {
-  // Import dynamique des modules
   const { calculateInstitutionalFlows } = await import('./institutionalFlows');
   const { calculateFOMOAlert } = await import('./fomoAlert');
   const { calculateEntryTiming } = await import('./entryTiming');
-  const { fetchInstitutionalFlowsCached, convertToInstitutionalScore, getMockInstitutionalFlows } = await import('./sec13fAPI');
+  const { fetchInstitutionalFlowsCached, convertToInstitutionalScore } = await import('./sec13fAPI');
   
-  // 🔥 NOUVEAU: Fetch REAL institutional flows via API 13F
   let institutionalFlows: any;
   
   try {
@@ -476,34 +501,28 @@ async function calculateV2Extension(
     const real13FData = await fetchInstitutionalFlowsCached(ticker);
     
     if (real13FData) {
-      // ✅ Données 13F réelles disponibles
       institutionalFlows = convertToInstitutionalScore(real13FData);
       console.log(`✅ Using REAL 13F data for ${ticker}: ${institutionalFlows.score}/100`);
     } else {
-      // ⚠️ Pas de données 13F, utiliser analyse volume
       console.log(`⚠️ No 13F data for ${ticker}, using volume analysis`);
       institutionalFlows = calculateInstitutionalFlows(data);
     }
   } catch (error) {
-    // ❌ Erreur API, fallback sur analyse volume
     console.warn(`⚠️ 13F fetch error for ${ticker}, using volume analysis`);
     institutionalFlows = calculateInstitutionalFlows(data);
   }
   
-  // Calcul des autres piliers v2.1
   const fomoAlert = calculateFOMOAlert(data);
   const entryTiming = calculateEntryTiming(data);
   
-  // Breakdown de la nouvelle formule v2.1
   const breakdown = {
-    technical: technicalScore * 0.30,      // 30%
-    emergent: emergentScore * 0.40,        // 40%
-    flows: institutionalFlows.score * 0.15, // 15% ✅ Maintenant avec vraies données 13F
-    fomo: fomoAlert.score * 0.10,          // 10%
-    timing: entryTiming.score * 0.05       // 5%
+    technical: technicalScore * 0.30,
+    emergent: emergentScore * 0.40,
+    flows: institutionalFlows.score * 0.15,
+    fomo: fomoAlert.score * 0.10,
+    timing: entryTiming.score * 0.05
   };
   
-  // Score composite v2.1
   const compositeV2 = 
     breakdown.technical +
     breakdown.emergent +
@@ -546,31 +565,34 @@ export async function calculateAssetScore(
   if (data.length === 0) {
     console.log(`⚠️ No data for ${asset.ticker}, returning zero score`);
     return {
-  ticker: asset.ticker,
-  name: asset.name,
-  category: asset.category,
-  score: 0,
-  technicalScore: 0,  // 🔥 AJOUTEZ CETTE LIGNE
-  emergentScore: 0,
-  momentum: 0,
-  volatility: 0,
-  trend: 0,
-  lastPrice: 0,
-  change1M: 0,
-  change3M: 0,
-  change6M: 0,
-  recommendation: 'AVOID',
-  confidence: 0,
-  explanation: 'Aucune donnée disponible pour cet asset',  // 🔥 AJOUTEZ CETTE LIGNE
-  emergentDetails: {
-    contrarian: 0,
-    catalysts: 0,
-    technicalEarly: 0,
-    rotation: 0,
-    seasonality: 0,
-    positioning: 0,
-  }
-} as AssetScore;
+      ticker: asset.ticker,
+      name: asset.name,
+      category: asset.category,
+      score: 0,
+      technicalScore: 0,
+      emergentScore: 0,
+      momentum: 0,
+      volatility: 0,
+      trend: 0,
+      lastPrice: 0,
+      change1M: 0,
+      change3M: 0,
+      change6M: 0,
+      recommendation: 'AVOID',
+      confidence: 0,
+      explanation: 'Aucune donnée disponible pour cet asset',
+      emergentDetails: {
+        contrarian: 0,
+        catalysts: 0,
+        technicalEarly: 0,
+        rotation: 0,
+        seasonality: 0,
+        positioning: 0,
+        news: 0,
+        newsExplanation: 'Aucune donnée',
+        newsSentiment: 'neutral',
+      }
+    } as AssetScore;
   }
   
   const momentum = calculateMomentumScore(data);
@@ -592,10 +614,8 @@ export async function calculateAssetScore(
   
   const emergent = await calculateEmergentScore(data, asset, momentum, regime);
   
-  // 🔥 OPTION 2 - NOUVELLE FORMULE V2.1
   const v2Extension = await calculateV2Extension(data, technicalScore, emergent.score, asset.ticker);
   
-  // Préparer valuationInfo (async)
   const valData = await calculateValuationScoreV2(asset.ticker, asset.category);
   const valuationInfo = {
     score: valData.score,
@@ -605,14 +625,13 @@ export async function calculateAssetScore(
     explanation: valData.explanation,
   };
   
-  // Score Composite v2.1
   const composite = v2Extension.compositeV2!;
   
   return {
     ticker: asset.ticker,
     name: asset.name,
     category: asset.category,
-    score: v2Extension.compositeV2!,  // 🔥 NOUVEAU SCORE
+    score: v2Extension.compositeV2!,
     technicalScore: Math.round(technicalScore * 10) / 10,
     emergentScore: emergent.score,
     momentum: Math.round(momentum * 10) / 10,
@@ -661,7 +680,7 @@ export async function calculateAssetScore(
         explanation: ddData.explanation,
       };
     })(),
-    valuationInfo,  // ✅ Déjà calculé avec await avant le return
+    valuationInfo,
     macroRegionalInfo: (() => {
       const macroData = calculateMacroRegionalScore(asset.ticker);
       return {
@@ -671,7 +690,13 @@ export async function calculateAssetScore(
         explanation: macroData.explanation,
       };
     })(),
-    // 🔥 OPTION 2 - NOUVEAUX PILIERS + BREAKDOWN
+    // 🔥 NOUVEAU : News Sentiment Info
+    newsInfo: emergent.details.news ? {
+  score: emergent.details.news,
+  sentiment: emergent.details.newsSentiment,
+  articlesCount: emergent.details.newsArticlesCount ?? 0,
+  explanation: emergent.details.newsExplanation,
+} : undefined,
     institutionalFlows: v2Extension.institutionalFlows,
     fomoAlert: v2Extension.fomoAlert,
     entryTiming: v2Extension.entryTiming,
@@ -698,8 +723,5 @@ export async function calculateAllScores(): Promise<AssetScore[]> {
   
   console.log(`✅ Calculation complete! ${scores.filter(s => s.score > 0).length} assets with data`);
   
-  return scores.sort((a, b) => {
-    // 🔥 OPTION 2 - TRI PAR NOUVEAU SCORE
-    return b.score - a.score;
-  });
+  return scores.sort((a, b) => b.score - a.score);
 }

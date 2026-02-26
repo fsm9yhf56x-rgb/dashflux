@@ -1,0 +1,76 @@
+// app/api/scores/route.ts
+import { NextResponse } from 'next/server';
+import { ScoresDatabase } from '../../../lib/db/scores-db';  // ← CHEMIN RELATIF
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const category = searchParams.get('category');
+    const limit = searchParams.get('limit');
+    const minScore = searchParams.get('minScore');
+
+    const db = new ScoresDatabase();
+    
+    let scores = category 
+      ? db.getScoresByCategory(category)
+      : db.getAllScores();
+
+    if (minScore) {
+      const minScoreNum = parseFloat(minScore);
+      scores = scores.filter(s => s.score >= minScoreNum);
+    }
+
+    if (limit) {
+      const limitNum = parseInt(limit);
+      scores = scores.slice(0, limitNum);
+    }
+
+    const lastUpdate = db.getLastUpdateTime();
+    db.close();
+
+    return NextResponse.json({
+      scores,
+      count: scores.length,
+      lastUpdate,
+      timestamp: Date.now()
+    });
+
+  } catch (error) {
+    return NextResponse.json(
+      { error: String(error) },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { scores } = body;
+
+    if (!scores || !Array.isArray(scores)) {
+      return NextResponse.json(
+        { error: 'Invalid scores array' },
+        { status: 400 }
+      );
+    }
+
+    const db = new ScoresDatabase();
+    db.saveScores(scores);
+    db.close();
+
+    return NextResponse.json({
+      success: true,
+      count: scores.length,
+      timestamp: Date.now()
+    });
+
+  } catch (error) {
+    return NextResponse.json(
+      { error: String(error) },
+      { status: 500 }
+    );
+  }
+}
+
+export const dynamic = 'force-dynamic';

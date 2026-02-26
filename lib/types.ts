@@ -85,6 +85,13 @@ export interface AssetScore {
     };
     explanation: string;
   };
+  // 🆕 INFO NEWS SENTIMENT
+  newsInfo?: {
+    score: number;
+    sentiment: 'neutral' | 'bullish' | 'bearish';
+    articlesCount: number;
+    explanation?: string;
+  };
   // 🔥 V2.1 - NOUVEAUX PILIERS + BREAKDOWN
   institutionalFlows?: any;
   fomoAlert?: any;

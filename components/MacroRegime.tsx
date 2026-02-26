@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { MacroRegime } from '@/lib/types';
-import { TrendingUp, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { TrendingUp, AlertCircle, ChevronDown, ChevronUp, History, BarChart2 } from 'lucide-react';
 import MacroTransitionProbs from './MacroTransitionProbs';
 import MacroHistoryCompact from './MacroHistoryCompact';
 
@@ -10,255 +10,286 @@ interface Props {
   regime: MacroRegime | null;
 }
 
-export default function MacroRegimeCard({ regime }: Props) {
-  const [showProbs, setShowProbs] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
+// ── Regime visual config ──────────────────────────────────────────────────────
+type RegimeCfg = {
+  dot: string; label_color: string; border: string;
+  bg_light: string; bg_dark: string; glow: string; btn_bg: string; btn_color: string;
+};
 
+const REGIME_CONFIG: Record<string, RegimeCfg> = {
+  goldilocks: {
+    dot:         '#22c55e',
+    label_color: '#16a34a',
+    border:      'rgba(34,197,94,0.35)',
+    bg_light:    'rgba(240,253,244,0.9)',
+    bg_dark:     'rgba(34,197,94,0.07)',
+    glow:        'rgba(34,197,94,0.08)',
+    btn_bg:      'rgba(34,197,94,0.1)',
+    btn_color:   '#16a34a',
+  },
+  reflation: {
+    dot:         '#f59e0b',
+    label_color: '#d97706',
+    border:      'rgba(245,158,11,0.35)',
+    bg_light:    'rgba(255,251,235,0.9)',
+    bg_dark:     'rgba(245,158,11,0.07)',
+    glow:        'rgba(245,158,11,0.08)',
+    btn_bg:      'rgba(245,158,11,0.1)',
+    btn_color:   '#d97706',
+  },
+  stagflation: {
+    dot:         '#ef4444',
+    label_color: '#dc2626',
+    border:      'rgba(239,68,68,0.35)',
+    bg_light:    'rgba(254,242,242,0.9)',
+    bg_dark:     'rgba(239,68,68,0.07)',
+    glow:        'rgba(239,68,68,0.08)',
+    btn_bg:      'rgba(239,68,68,0.08)',
+    btn_color:   '#dc2626',
+  },
+  recession: {
+    dot:         '#3b82f6',
+    label_color: '#2563eb',
+    border:      'rgba(59,130,246,0.35)',
+    bg_light:    'rgba(239,246,255,0.9)',
+    bg_dark:     'rgba(59,130,246,0.07)',
+    glow:        'rgba(59,130,246,0.08)',
+    btn_bg:      'rgba(59,130,246,0.08)',
+    btn_color:   '#2563eb',
+  },
+  unknown: {
+    dot:         'var(--text-faint)',
+    label_color: 'var(--text-muted)',
+    border:      'rgba(156,163,175,0.3)',
+    bg_light:    'rgba(249,250,251,0.9)',
+    bg_dark:     'rgba(156,163,175,0.06)',
+    glow:        'rgba(156,163,175,0.04)',
+    btn_bg:      'rgba(156,163,175,0.08)',
+    btn_color:   'var(--text-muted)',
+  },
+};
+
+function useDark() {
+  const [dark, setDark] = useState(false);
+  useEffect(() => {
+    const check = () => setDark(document.documentElement.classList.contains('dark'));
+    check();
+    const obs = new MutationObserver(check);
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => obs.disconnect();
+  }, []);
+  return dark;
+}
+
+// ── Pulsing dot ───────────────────────────────────────────────────────────────
+function PulseDot({ color }: { color: string }) {
+  return (
+    <span style={{ position: 'relative', display: 'inline-flex', width: 10, height: 10, flexShrink: 0 }}>
+      <span style={{
+        position: 'absolute', inset: 0, borderRadius: '50%', background: color, opacity: 0.35,
+        animation: 'macroPing 1.8s cubic-bezier(0,0,0.2,1) infinite',
+      }}/>
+      <span style={{ position: 'relative', borderRadius: '50%', width: 10, height: 10, background: color }}/>
+    </span>
+  );
+}
+
+// ── Toggle button ─────────────────────────────────────────────────────────────
+function ToggleBtn({
+  active, onClick, icon: Icon, label, cfg,
+}: {
+  active: boolean; onClick: () => void;
+  icon: React.ElementType; label: string;
+  cfg: typeof REGIME_CONFIG[string];
+}) {
+  const [hov, setHov] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        gap: 6, padding: '7px 14px',
+        borderRadius: 22,
+        background: active || hov ? cfg.btn_bg : 'var(--glass-hover)',
+        border: `1px solid ${active ? cfg.border : 'var(--border)'}`,
+        color: active || hov ? cfg.btn_color : 'var(--text-muted)',
+        fontSize: 12, fontWeight: 600,
+        transition: 'all 0.25s cubic-bezier(0.16,1,0.3,1)',
+        transform: hov && !active ? 'translateY(-1px)' : 'none',
+        boxShadow: active ? `0 2px 12px ${cfg.btn_bg}` : 'none',
+        cursor: 'pointer',
+        whiteSpace: 'nowrap',
+      }}>
+      <Icon style={{
+        width: 13, height: 13,
+        transition: 'transform 0.4s cubic-bezier(0.34,1.56,0.64,1)',
+        transform: hov ? 'scale(1.2)' : 'none',
+      }}/>
+      {label}
+      {active
+        ? <ChevronUp style={{ width: 12, height: 12 }}/>
+        : <ChevronDown style={{ width: 12, height: 12, opacity: 0.6 }}/>}
+    </button>
+  );
+}
+
+// ── Main card ─────────────────────────────────────────────────────────────────
+export default function MacroRegimeCard({ regime }: Props) {
+  const [showProbs,   setShowProbs]   = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [visible,     setVisible]     = useState(false);
+  const ref  = useRef<HTMLDivElement>(null);
+  const dark = useDark();
+
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(true), 80);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Loading state
   if (!regime) {
     return (
-      <div className="bg-gray-100 dark:bg-[#1a1f27] rounded-lg p-4 lg:p-6 border border-gray-200 dark:border-[#3d424d]">
-        <div className="flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 lg:w-6 lg:h-6 text-gray-400 dark:text-[#71717a]" />
-          <div>
-            <h3 className="font-semibold text-sm lg:text-base text-gray-600 dark:text-[#a1a1aa]">Chargement...</h3>
-          </div>
-        </div>
+      <div style={{
+        background: 'var(--glass-bg)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        border: '1px solid var(--glass-border)',
+        borderRadius: 18,
+        padding: '16px 20px',
+        display: 'flex', alignItems: 'center', gap: 12,
+      }}>
+        <AlertCircle style={{ width: 18, height: 18, color: '#d4d6e2', flexShrink: 0 }}/>
+        <span style={{ fontSize: 14, color: 'var(--text-faint)', fontWeight: 500 }}>Chargement du régime macro…</span>
       </div>
     );
   }
 
-  const regimeType = regime.type || 'unknown';
-  const label = regime.label || regimeType || 'Unknown';
-  const description = regime.description || 'Aucune description disponible';
+  const regimeType    = regime.type || 'unknown';
+  const label         = regime.label || regimeType;
+  const description   = regime.description || 'Aucune description disponible';
   const favoredAssets = regime.favoredAssets || [];
+  const cfg           = REGIME_CONFIG[regimeType] ?? REGIME_CONFIG.unknown;
 
-  // Goldilocks (Croissance + faible inflation) - ORANGE en dark, VERT en light
-  if (regimeType === 'goldilocks') {
-    return (
-      <div className="bg-green-50 dark:bg-[#1a1f27] rounded-lg p-3 lg:p-4 shadow-lg border-2 border-green-300 dark:border-[#ff6b35] relative overflow-hidden">
-        {/* Effet glow */}
-        <div className="absolute inset-0 bg-gradient-to-br from-green-100/50 dark:from-[#ff6b35]/10 to-transparent pointer-events-none"></div>
-        
-        <div className="relative flex flex-col lg:flex-row items-start justify-between gap-3 mb-2">
-          <div className="flex-1 w-full lg:w-auto">
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-2.5 h-2.5 lg:w-3 lg:h-3 rounded-full bg-green-500 dark:bg-[#ff6b35] animate-pulse"></div>
-              <h3 className="text-base lg:text-lg font-bold text-green-700 dark:text-[#ff6b35]">
-                {label}
-              </h3>
-            </div>
-            <p className="text-xs lg:text-sm mb-1.5 text-gray-700 dark:text-[#d4d4d8]">
-              {description}
-            </p>
-            {favoredAssets.length > 0 && (
-              <div className="flex items-center gap-1.5 text-xs">
-                <TrendingUp className="w-3 h-3 lg:w-3.5 lg:h-3.5 text-green-600 dark:text-[#ff8c5f]" />
-                <span className="font-medium text-gray-700 dark:text-[#d4d4d8]">
-                  Actifs: {favoredAssets.join(', ')}
-                </span>
-              </div>
-            )}
-          </div>
-          
-          {/* Buttons */}
-          <div className="flex gap-1.5 w-full lg:w-auto">
-            <button
-              onClick={() => setShowHistory(!showHistory)}
-              className="flex-1 lg:flex-initial flex items-center justify-center gap-1.5 lg:gap-2 px-2.5 lg:px-3 py-2 lg:py-2.5 bg-green-600 hover:bg-green-700 dark:bg-[#ff6b35] dark:hover:bg-[#e55a2b] text-white rounded-lg transition-all text-xs font-medium"
-            >
-              <span className="hidden sm:inline">📅</span>
-              <span className="text-[10px] lg:text-xs">Historique</span>
-              {showHistory ? <ChevronUp className="w-3 h-3 lg:w-3.5 lg:h-3.5" /> : <ChevronDown className="w-3 h-3 lg:w-3.5 lg:h-3.5" />}
-            </button>
-            <button
-              onClick={() => setShowProbs(!showProbs)}
-              className="flex-1 lg:flex-initial flex items-center justify-center gap-1.5 lg:gap-2 px-2.5 lg:px-3 py-2 lg:py-2.5 bg-gray-200 hover:bg-gray-300 dark:bg-[#2f3542] dark:hover:bg-[#3d424d] text-gray-700 dark:text-[#d4d4d8] border border-gray-300 dark:border-[#3d424d] rounded-lg transition-all text-xs font-medium"
-            >
-              <span className="hidden sm:inline">🔄</span>
-              <span className="text-[10px] lg:text-xs">Probas</span>
-              {showProbs ? <ChevronUp className="w-3 h-3 lg:w-3.5 lg:h-3.5" /> : <ChevronDown className="w-3 h-3 lg:w-3.5 lg:h-3.5" />}
-            </button>
-          </div>
-        </div>
-        
-        {/* Historique (collapsible) */}
-        {showHistory && <MacroHistoryCompact currentRegime={regime} />}
-        
-        {/* Probabilités (collapsible) */}
-        {showProbs && <MacroTransitionProbs currentRegime={regimeType} regimeScores={(regime as any).scores} />}
-      </div>
-    );
-  }
-
-  // Reflation (Croissance + inflation) - ORANGE
-  if (regimeType === 'reflation') {
-    return (
-      <div className="bg-orange-50 dark:bg-[#1a1f27] rounded-lg p-3 lg:p-4 shadow-lg border-2 border-orange-300 dark:border-[#e55a2b] relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-100/50 dark:from-[#e55a2b]/10 to-transparent pointer-events-none"></div>
-        
-        <div className="relative flex flex-col lg:flex-row items-start justify-between gap-3 mb-2">
-          <div className="flex-1 w-full lg:w-auto">
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-2.5 h-2.5 lg:w-3 lg:h-3 rounded-full bg-orange-500 dark:bg-[#e55a2b] animate-pulse"></div>
-              <h3 className="text-base lg:text-lg font-bold text-orange-700 dark:text-[#e55a2b]">
-                {label}
-              </h3>
-            </div>
-            <p className="text-xs lg:text-sm mb-1.5 text-gray-700 dark:text-[#d4d4d8]">
-              {description}
-            </p>
-            {favoredAssets.length > 0 && (
-              <div className="flex items-center gap-1.5 text-xs">
-                <TrendingUp className="w-3 h-3 lg:w-3.5 lg:h-3.5 text-orange-600 dark:text-[#ff6b35]" />
-                <span className="font-medium text-gray-700 dark:text-[#d4d4d8]">
-                  Actifs: {favoredAssets.join(', ')}
-                </span>
-              </div>
-            )}
-          </div>
-          
-          <div className="flex gap-1.5 w-full lg:w-auto">
-            <button
-              onClick={() => setShowHistory(!showHistory)}
-              className="flex-1 lg:flex-initial flex items-center justify-center gap-1.5 lg:gap-2 px-2.5 lg:px-3 py-2 lg:py-2.5 bg-orange-600 hover:bg-orange-700 dark:bg-[#e55a2b] dark:hover:bg-[#d14d22] text-white rounded-lg transition-all text-xs font-medium"
-            >
-              <span className="hidden sm:inline">📅</span>
-              <span className="text-[10px] lg:text-xs">Historique</span>
-              {showHistory ? <ChevronUp className="w-3 h-3 lg:w-3.5 lg:h-3.5" /> : <ChevronDown className="w-3 h-3 lg:w-3.5 lg:h-3.5" />}
-            </button>
-            <button
-              onClick={() => setShowProbs(!showProbs)}
-              className="flex-1 lg:flex-initial flex items-center justify-center gap-1.5 lg:gap-2 px-2.5 lg:px-3 py-2 lg:py-2.5 bg-gray-200 hover:bg-gray-300 dark:bg-[#2f3542] dark:hover:bg-[#3d424d] text-gray-700 dark:text-[#d4d4d8] border border-gray-300 dark:border-[#3d424d] rounded-lg transition-all text-xs font-medium"
-            >
-              <span className="hidden sm:inline">🔄</span>
-              <span className="text-[10px] lg:text-xs">Probas</span>
-              {showProbs ? <ChevronUp className="w-3 h-3 lg:w-3.5 lg:h-3.5" /> : <ChevronDown className="w-3 h-3 lg:w-3.5 lg:h-3.5" />}
-            </button>
-          </div>
-        </div>
-        
-        {showHistory && <MacroHistoryCompact currentRegime={regime} />}
-        {showProbs && <MacroTransitionProbs currentRegime={regimeType} regimeScores={(regime as any).scores} />}
-      </div>
-    );
-  }
-
-  // Stagflation (Faible croissance + inflation) - ROUGE en light, GRIS en dark
-  if (regimeType === 'stagflation') {
-    return (
-      <div className="bg-red-50 dark:bg-[#1a1f27] rounded-lg p-3 lg:p-4 shadow-lg border-2 border-red-300 dark:border-[#71717a] relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-red-100/50 dark:from-[#71717a]/10 to-transparent pointer-events-none"></div>
-        
-        <div className="relative flex flex-col lg:flex-row items-start justify-between gap-3 mb-2">
-          <div className="flex-1 w-full lg:w-auto">
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-2.5 h-2.5 lg:w-3 lg:h-3 rounded-full bg-red-500 dark:bg-[#71717a] animate-pulse"></div>
-              <h3 className="text-base lg:text-lg font-bold text-red-700 dark:text-[#a1a1aa]">
-                {label}
-              </h3>
-            </div>
-            <p className="text-xs lg:text-sm mb-1.5 text-gray-700 dark:text-[#d4d4d8]">
-              {description}
-            </p>
-            {favoredAssets.length > 0 && (
-              <div className="flex items-center gap-1.5 text-xs">
-                <TrendingUp className="w-3 h-3 lg:w-3.5 lg:h-3.5 text-red-600 dark:text-[#a1a1aa]" />
-                <span className="font-medium text-gray-700 dark:text-[#d4d4d8]">
-                  Actifs: {favoredAssets.join(', ')}
-                </span>
-              </div>
-            )}
-          </div>
-          
-          <div className="flex gap-1.5 w-full lg:w-auto">
-            <button
-              onClick={() => setShowHistory(!showHistory)}
-              className="flex-1 lg:flex-initial flex items-center justify-center gap-1.5 lg:gap-2 px-2.5 lg:px-3 py-2 lg:py-2.5 bg-red-600 hover:bg-red-700 dark:bg-[#71717a] dark:hover:bg-[#5f5f67] text-white rounded-lg transition-all text-xs font-medium"
-            >
-              <span className="hidden sm:inline">📅</span>
-              <span className="text-[10px] lg:text-xs">Historique</span>
-              {showHistory ? <ChevronUp className="w-3 h-3 lg:w-3.5 lg:h-3.5" /> : <ChevronDown className="w-3 h-3 lg:w-3.5 lg:h-3.5" />}
-            </button>
-            <button
-              onClick={() => setShowProbs(!showProbs)}
-              className="flex-1 lg:flex-initial flex items-center justify-center gap-1.5 lg:gap-2 px-2.5 lg:px-3 py-2 lg:py-2.5 bg-gray-200 hover:bg-gray-300 dark:bg-[#2f3542] dark:hover:bg-[#3d424d] text-gray-700 dark:text-[#d4d4d8] border border-gray-300 dark:border-[#3d424d] rounded-lg transition-all text-xs font-medium"
-            >
-              <span className="hidden sm:inline">🔄</span>
-              <span className="text-[10px] lg:text-xs">Probas</span>
-              {showProbs ? <ChevronUp className="w-3 h-3 lg:w-3.5 lg:h-3.5" /> : <ChevronDown className="w-3 h-3 lg:w-3.5 lg:h-3.5" />}
-            </button>
-          </div>
-        </div>
-        
-        {showHistory && <MacroHistoryCompact currentRegime={regime} />}
-        {showProbs && <MacroTransitionProbs currentRegime={regimeType} regimeScores={(regime as any).scores} />}
-      </div>
-    );
-  }
-
-  // Récession (Faible croissance + faible inflation) - BLEU en light, GRIS en dark
-  if (regimeType === 'recession') {
-    return (
-      <div className="bg-blue-50 dark:bg-[#1a1f27] rounded-lg p-3 lg:p-4 shadow-lg border-2 border-blue-300 dark:border-[#3d424d] relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-100/50 dark:from-[#3d424d]/10 to-transparent pointer-events-none"></div>
-        
-        <div className="relative flex flex-col lg:flex-row items-start justify-between gap-3 mb-2">
-          <div className="flex-1 w-full lg:w-auto">
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-2.5 h-2.5 lg:w-3 lg:h-3 rounded-full bg-blue-500 dark:bg-[#71717a] animate-pulse"></div>
-              <h3 className="text-base lg:text-lg font-bold text-blue-700 dark:text-[#a1a1aa]">
-                {label}
-              </h3>
-            </div>
-            <p className="text-xs lg:text-sm mb-1.5 text-gray-700 dark:text-[#d4d4d8]">
-              {description}
-            </p>
-            {favoredAssets.length > 0 && (
-              <div className="flex items-center gap-1.5 text-xs">
-                <TrendingUp className="w-3 h-3 lg:w-3.5 lg:h-3.5 text-blue-600 dark:text-[#a1a1aa]" />
-                <span className="font-medium text-gray-700 dark:text-[#d4d4d8]">
-                  Actifs: {favoredAssets.join(', ')}
-                </span>
-              </div>
-            )}
-          </div>
-          
-          <div className="flex gap-1.5 w-full lg:w-auto">
-            <button
-              onClick={() => setShowHistory(!showHistory)}
-              className="flex-1 lg:flex-initial flex items-center justify-center gap-1.5 lg:gap-2 px-2.5 lg:px-3 py-2 lg:py-2.5 bg-blue-600 hover:bg-blue-700 dark:bg-[#3d424d] dark:hover:bg-[#4a515c] text-white dark:text-[#d4d4d8] rounded-lg transition-all text-xs font-medium"
-            >
-              <span className="hidden sm:inline">📅</span>
-              <span className="text-[10px] lg:text-xs">Historique</span>
-              {showHistory ? <ChevronUp className="w-3 h-3 lg:w-3.5 lg:h-3.5" /> : <ChevronDown className="w-3 h-3 lg:w-3.5 lg:h-3.5" />}
-            </button>
-            <button
-              onClick={() => setShowProbs(!showProbs)}
-              className="flex-1 lg:flex-initial flex items-center justify-center gap-1.5 lg:gap-2 px-2.5 lg:px-3 py-2 lg:py-2.5 bg-gray-200 hover:bg-gray-300 dark:bg-[#2f3542] dark:hover:bg-[#3d424d] text-gray-700 dark:text-[#d4d4d8] border border-gray-300 dark:border-[#3d424d] rounded-lg transition-all text-xs font-medium"
-            >
-              <span className="hidden sm:inline">🔄</span>
-              <span className="text-[10px] lg:text-xs">Probas</span>
-              {showProbs ? <ChevronUp className="w-3 h-3 lg:w-3.5 lg:h-3.5" /> : <ChevronDown className="w-3 h-3 lg:w-3.5 lg:h-3.5" />}
-            </button>
-          </div>
-        </div>
-        
-        {showHistory && <MacroHistoryCompact currentRegime={regime} />}
-        {showProbs && <MacroTransitionProbs currentRegime={regimeType} regimeScores={(regime as any).scores} />}
-      </div>
-    );
-  }
-
-  // Unknown / Default
   return (
-    <div className="bg-gray-100 dark:bg-[#1a1f27] rounded-lg p-3 lg:p-4 shadow-lg border-2 border-gray-300 dark:border-[#3d424d]">
-      <div className="flex items-center gap-3">
-        <AlertCircle className="w-5 h-5 lg:w-6 lg:h-6 text-gray-500 dark:text-[#71717a]" />
-        <div>
-          <h3 className="font-semibold text-sm lg:text-base text-gray-700 dark:text-[#a1a1aa]">{label}</h3>
-          <p className="text-xs lg:text-sm text-gray-600 dark:text-[#71717a]">{description}</p>
+    <>
+      <style>{`
+        @keyframes macroPing {
+          75%, 100% { transform: scale(2.2); opacity: 0; }
+        }
+        @keyframes macroIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+
+      <div ref={ref} style={{
+        background: dark ? cfg.bg_dark : cfg.bg_light,
+        backdropFilter: 'var(--glass-blur)',
+        WebkitBackdropFilter: 'var(--glass-blur)',
+        border: `1.5px solid ${cfg.border}`,
+        borderRadius: 18,
+        padding: '14px 18px',
+        boxShadow: `0 4px 24px ${cfg.glow}, 0 1px 6px rgba(0,0,0,0.04)`,
+        position: 'relative', overflow: 'hidden',
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(10px)',
+        transition: 'opacity 0.5s cubic-bezier(0.16,1,0.3,1), transform 0.5s cubic-bezier(0.16,1,0.3,1)',
+      }}>
+
+        {/* Ambient glow top-left */}
+        <div style={{
+          position: 'absolute', top: -40, left: -40,
+          width: 180, height: 180, borderRadius: '50%',
+          background: `radial-gradient(circle, ${cfg.dot}22, transparent 70%)`,
+          pointerEvents: 'none',
+        }}/>
+
+        {/* Content */}
+        <div style={{
+          position: 'relative',
+          display: 'flex', flexDirection: 'row',
+          alignItems: 'flex-start', justifyContent: 'space-between',
+          gap: 12, flexWrap: 'wrap',
+          marginBottom: showHistory || showProbs ? 14 : 0,
+        }}>
+          {/* Left: info */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
+              <PulseDot color={cfg.dot}/>
+              <span style={{
+                fontSize: 16, fontWeight: 800, color: cfg.label_color,
+                animation: visible ? 'macroIn 0.45s cubic-bezier(0.16,1,0.3,1) 0.1s both' : 'none',
+              }}>
+                {label}
+              </span>
+            </div>
+
+            <p style={{
+              fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 6,
+              animation: visible ? 'macroIn 0.45s cubic-bezier(0.16,1,0.3,1) 0.18s both' : 'none',
+            }}>
+              {description}
+            </p>
+
+            {favoredAssets.length > 0 && (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                animation: visible ? 'macroIn 0.45s cubic-bezier(0.16,1,0.3,1) 0.26s both' : 'none',
+              }}>
+                <TrendingUp style={{ width: 12, height: 12, color: cfg.label_color, flexShrink: 0 }}/>
+                <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500 }}>
+                  Actifs favorisés :
+                </span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  {favoredAssets.map(a => (
+                    <span key={a} style={{
+                      fontSize: 11, fontWeight: 700, padding: '1px 8px', borderRadius: 20,
+                      background: cfg.btn_bg, color: cfg.label_color,
+                      border: `1px solid ${cfg.border}`,
+                    }}>{a}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Right: buttons */}
+          <div style={{
+            display: 'flex', gap: 6, flexShrink: 0, alignSelf: 'flex-start',
+            animation: visible ? 'macroIn 0.45s cubic-bezier(0.16,1,0.3,1) 0.32s both' : 'none',
+          }}>
+            <ToggleBtn
+              active={showHistory} onClick={() => setShowHistory(v => !v)}
+              icon={History} label="Historique" cfg={cfg}
+            />
+            <ToggleBtn
+              active={showProbs} onClick={() => setShowProbs(v => !v)}
+              icon={BarChart2} label="Probas" cfg={cfg}
+            />
+          </div>
+        </div>
+
+        {/* Collapsibles */}
+        <div style={{
+          overflow: 'hidden',
+          maxHeight: showHistory ? 600 : 0,
+          opacity: showHistory ? 1 : 0,
+          transition: 'max-height 0.4s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease',
+        }}>
+          {showHistory && <MacroHistoryCompact currentRegime={regime}/>}
+        </div>
+
+        <div style={{
+          overflow: 'hidden',
+          maxHeight: showProbs ? 600 : 0,
+          opacity: showProbs ? 1 : 0,
+          transition: 'max-height 0.4s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease',
+        }}>
+          {showProbs && <MacroTransitionProbs currentRegime={regimeType} regimeScores={(regime as any).scores}/>}
         </div>
       </div>
-    </div>
+    </>
   );
 }

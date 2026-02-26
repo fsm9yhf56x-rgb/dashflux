@@ -1,0 +1,401 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { ArrowRight, Minus } from 'lucide-react';
+
+export default function LandingPage() {
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-black text-white" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Inter", "Helvetica Neue", sans-serif' }}>
+
+      {/* NAVIGATION */}
+      <nav className="fixed top-0 left-0 right-0 z-50 mix-blend-difference">
+        <div className="max-w-[1600px] mx-auto px-12 py-10 flex items-center justify-between">
+          <Link href="/" className="group">
+            <h1 className="text-sm font-light tracking-[0.3em] uppercase text-white hover:opacity-60 transition-opacity">
+              DashFlux
+            </h1>
+          </Link>
+          <div className="flex items-center gap-16">
+            <Link href="/methodologie" className="text-sm font-light tracking-[0.15em] text-white/70 hover:text-white transition-colors">
+              Méthodologie
+            </Link>
+            <Link href="/dashboard" className="text-sm font-light tracking-[0.15em] text-white/70 hover:text-white transition-colors">
+              Dashboard
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* HERO */}
+      <section className="min-h-screen flex items-center justify-center px-12 relative">
+        <div className="max-w-[1200px] mx-auto text-center fade-in-premium" style={{ opacity: Math.max(0, 1 - scrollY / 600) }}>
+          
+          <div className="mb-8">
+            <div className="h-px w-16 bg-white/20 mx-auto mb-8"></div>
+            <p className="text-xs font-light tracking-[0.4em] uppercase text-white/50 mb-2">
+              Predictive Intelligence
+            </p>
+          </div>
+
+          <h1 className="text-[5vw] md:text-[4rem] lg:text-[5.5rem] font-extralight tracking-tight leading-[1.1] mb-12">
+            Anticipe les mouvements
+            <br />
+            <span className="font-light">3 à 6 mois à l'avance</span>
+          </h1>
+
+          <p className="text-lg md:text-xl font-light text-white/60 tracking-wide leading-relaxed max-w-2xl mx-auto mb-16">
+            Analyse multi-dimensionnelle algorithmique
+            <br className="hidden md:block" />
+            sur 65 actifs financiers
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+            <Link
+              href="/dashboard"
+              className="group inline-flex items-center gap-3 px-10 py-4 bg-white text-black text-sm font-light tracking-[0.1em] uppercase hover:bg-white/90 transition-all"
+            >
+              Accéder
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link
+              href="#approach"
+              className="inline-flex items-center gap-3 px-10 py-4 border border-white/20 text-white text-sm font-light tracking-[0.1em] uppercase hover:border-white/40 transition-all"
+            >
+              Méthodologie
+            </Link>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-16 max-w-3xl mx-auto mt-32 pt-16 border-t border-white/10">
+            {[
+              { value: '65', label: 'Assets' },
+              { value: '13', label: 'Piliers' },
+              { value: '24/7', label: 'Temps Réel' }
+            ].map((stat, idx) => (
+              <div key={idx} className="text-center">
+                <p className="text-5xl font-extralight text-white mb-3 tracking-tight">{stat.value}</p>
+                <p className="text-xs font-light tracking-[0.2em] uppercase text-white/40">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 animate-float-premium">
+          <p className="text-[10px] font-light tracking-[0.3em] uppercase text-white/30">Scroll</p>
+          <div className="w-px h-12 bg-gradient-to-b from-white/20 to-transparent"></div>
+        </div>
+      </section>
+
+      {/* DIVIDER */}
+      <div className="h-px bg-white/5 max-w-[1600px] mx-auto"></div>
+
+      {/* EXAMPLE SECTION */}
+      <section className="min-h-screen flex items-center px-12 py-32">
+        <div className="max-w-[1600px] mx-auto w-full">
+          
+          <div className="grid lg:grid-cols-2 gap-32 items-center">
+            
+            {/* Left - Text */}
+            <div>
+              <div className="mb-12">
+                <div className="flex items-center gap-4 mb-6">
+                  <Minus className="w-8 h-8 text-white/30" />
+                  <p className="text-xs font-light tracking-[0.3em] uppercase text-white/40">Exemple</p>
+                </div>
+                <h2 className="text-5xl md:text-6xl font-extralight tracking-tight leading-[1.15] mb-8">
+                  Bitcoin
+                  <br />
+                  <span className="font-light">Janvier 2024</span>
+                </h2>
+              </div>
+              
+              <div className="space-y-8 mb-12">
+                <div className="flex items-baseline gap-4">
+                  <p className="text-[10px] font-light tracking-[0.25em] uppercase text-white/40 w-24">Score</p>
+                  <p className="text-3xl font-extralight">78<span className="text-white/30">/100</span></p>
+                </div>
+                <div className="flex items-baseline gap-4">
+                  <p className="text-[10px] font-light tracking-[0.25em] uppercase text-white/40 w-24">Signal</p>
+                  <p className="text-xl font-light">Acheter</p>
+                </div>
+                <div className="flex items-baseline gap-4">
+                  <p className="text-[10px] font-light tracking-[0.25em] uppercase text-white/40 w-24">Résultat</p>
+                  <p className="text-4xl font-light">+42%</p>
+                </div>
+                <div className="flex items-baseline gap-4">
+                  <p className="text-[10px] font-light tracking-[0.25em] uppercase text-white/40 w-24">Période</p>
+                  <p className="text-sm font-light text-white/60">5 mois</p>
+                </div>
+              </div>
+
+              <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm font-light tracking-[0.1em] uppercase text-white/70 hover:text-white transition-colors group">
+                Voir Dashboard
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+
+            {/* Right - Chart */}
+            <div className="relative">
+              <div className="aspect-[4/3] bg-white/[0.02] backdrop-blur border border-white/5 p-12">
+                <svg viewBox="0 0 600 400" className="w-full h-full">
+                  <defs>
+                    <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#ffffff" stopOpacity="0.2"/>
+                      <stop offset="50%" stopColor="#ffffff" stopOpacity="1"/>
+                      <stop offset="100%" stopColor="#ffffff" stopOpacity="0.2"/>
+                    </linearGradient>
+                  </defs>
+
+                  {/* Grid */}
+                  <line x1="0" y1="300" x2="600" y2="300" stroke="#ffffff" strokeOpacity="0.05" strokeWidth="1"/>
+                  <line x1="0" y1="200" x2="600" y2="200" stroke="#ffffff" strokeOpacity="0.05" strokeWidth="1"/>
+                  <line x1="0" y1="100" x2="600" y2="100" stroke="#ffffff" strokeOpacity="0.05" strokeWidth="1"/>
+
+                  {/* Line */}
+                  <path
+                    d="M 50,320 Q 150,310 220,120 T 420,100 L 550,60"
+                    fill="none"
+                    stroke="url(#lineGrad)"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    className="draw-line-premium"
+                  />
+                  
+                  {/* Points */}
+                  <circle cx="220" cy="120" r="6" fill="#ffffff" opacity="0.8"/>
+                  <circle cx="220" cy="120" r="3" fill="#000000"/>
+                  <text x="220" y="145" textAnchor="middle" className="text-[10px] font-light fill-white" opacity="0.5">BUY</text>
+                  
+                  <circle cx="420" cy="100" r="6" fill="#ffffff" opacity="0.8"/>
+                  <circle cx="420" cy="100" r="3" fill="#000000"/>
+                  <text x="420" y="90" textAnchor="middle" className="text-[10px] font-light fill-white" opacity="0.5">SELL</text>
+
+                  <text x="320" y="110" className="text-xl font-light fill-white" opacity="0.9">+42%</text>
+                </svg>
+              </div>
+
+              <div className="flex items-center justify-between text-[10px] font-light text-white/40 mt-6 px-2">
+                <span>JAN 2024</span>
+                <span>JUN 2024</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* DIVIDER */}
+      <div className="h-px bg-white/5 max-w-[1600px] mx-auto"></div>
+
+      {/* TRACK RECORD */}
+      <section className="min-h-screen flex items-center px-12 py-32">
+        <div className="max-w-[1600px] mx-auto w-full">
+          
+          <div className="text-center mb-24">
+            <div className="flex items-center justify-center gap-4 mb-8">
+              <div className="h-px w-12 bg-white/20"></div>
+              <p className="text-xs font-light tracking-[0.3em] uppercase text-white/40">Validation</p>
+              <div className="h-px w-12 bg-white/20"></div>
+            </div>
+            <h2 className="text-5xl md:text-6xl font-extralight tracking-tight">
+              Signaux Récents
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-4 gap-px bg-white/5 p-px max-w-6xl mx-auto">
+            {[
+              { asset: 'Or (GLD)', date: 'Oct 2023', score: '82', result: '+15%', period: '3 mois' },
+              { asset: 'Bitcoin', date: 'Jan 2024', score: '78', result: '+42%', period: '5 mois' },
+              { asset: 'Tech (QQQ)', date: 'Aug 2024', score: '35', result: '−22%', period: 'Évité' },
+              { asset: 'ETH', date: 'Déc 2023', score: '75', result: '+28%', period: '4 mois' }
+            ].map((item, idx) => (
+              <div key={idx} className="bg-black p-10 hover:bg-white/[0.02] transition-colors">
+                <div className="mb-8">
+                  <p className="text-xs font-light tracking-[0.2em] uppercase text-white/30 mb-2">{item.asset}</p>
+                  <p className="text-[10px] font-light tracking-[0.2em] uppercase text-white/20">{item.date}</p>
+                </div>
+                <div className="mb-8">
+                  <p className="text-[10px] font-light tracking-[0.2em] uppercase text-white/40 mb-2">Score</p>
+                  <p className="text-3xl font-extralight tracking-tight text-white">{item.score}<span className="text-white/30">/100</span></p>
+                </div>
+                <div className="pt-6 border-t border-white/10">
+                  <p className="text-4xl font-light tracking-tight text-white mb-2">{item.result}</p>
+                  <p className="text-[10px] font-light tracking-[0.2em] uppercase text-white/30">{item.period}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </section>
+
+      {/* DIVIDER */}
+      <div className="h-px bg-white/5 max-w-[1600px] mx-auto"></div>
+
+      {/* METHODOLOGY */}
+      <section className="min-h-screen flex items-center px-12 py-32">
+        <div className="max-w-[1600px] mx-auto w-full">
+          
+          <div className="grid lg:grid-cols-2 gap-32 items-center">
+            
+            {/* Left */}
+            <div>
+              <div className="mb-12">
+                <div className="flex items-center gap-4 mb-6">
+                  <Minus className="w-8 h-8 text-white/30" />
+                  <p className="text-xs font-light tracking-[0.3em] uppercase text-white/40">Méthodologie</p>
+                </div>
+                <h2 className="text-5xl md:text-6xl font-extralight tracking-tight leading-[1.15] mb-8">
+                  Treize Dimensions
+                  <br />
+                  <span className="font-light">d'Analyse</span>
+                </h2>
+              </div>
+              
+              <p className="text-lg font-light text-white/60 leading-relaxed mb-12">
+                Synthèse algorithmique de momentum, régimes macro, positionnement institutionnel et patterns de sentiment.
+              </p>
+
+              <Link href="/methodologie" className="inline-flex items-center gap-2 text-sm font-light tracking-[0.1em] uppercase text-white/70 hover:text-white transition-colors group">
+                Explorer
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+
+            {/* Right - Pillars */}
+            <div className="grid grid-cols-2 gap-px bg-white/5 p-px">
+              {[
+                'Momentum', 'Macro', 'Positionnement',
+                'Sentiment', 'Saisonnalité', 'Corrélations',
+                'Valuation', 'Liquidité', 'Catalyseurs',
+                'Volatilité', 'Volume', 'Divergences', 'Cycles'
+              ].map((pillar, idx) => (
+                <div key={idx} className="bg-black p-8 hover:bg-white/[0.02] transition-colors group">
+                  <p className="text-[10px] font-light tracking-[0.25em] uppercase text-white/30 mb-3 group-hover:text-white/50 transition-colors">
+                    {String(idx + 1).padStart(2, '0')}
+                  </p>
+                  <p className="text-sm font-light text-white/80 group-hover:text-white transition-colors">
+                    {pillar}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* DIVIDER */}
+      <div className="h-px bg-white/5 max-w-[1600px] mx-auto"></div>
+
+      {/* CTA */}
+      <section className="min-h-[60vh] flex items-center px-12 py-32">
+        <div className="max-w-4xl mx-auto text-center w-full">
+          
+          <h2 className="text-5xl md:text-7xl font-extralight tracking-tight leading-[1.1] mb-12">
+            Commencer
+          </h2>
+          
+          <p className="text-lg font-light text-white/50 tracking-wide mb-16 max-w-xl mx-auto">
+            Accès complet au framework analytique
+          </p>
+          
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-3 px-12 py-5 bg-white text-black text-sm font-light tracking-[0.15em] uppercase hover:bg-white/90 transition-all group"
+          >
+            Accéder
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
+
+          <p className="mt-16 text-[10px] font-light tracking-[0.3em] uppercase text-white/20">
+            Outil Éducatif — Pas de Conseil Financier
+          </p>
+
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="border-t border-white/5 py-16 px-12">
+        <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+          <p className="text-[10px] font-light tracking-[0.3em] uppercase text-white/30">
+            © 2025 DashFlux
+          </p>
+          <div className="flex items-center gap-12">
+            <Link href="/legal" className="text-[10px] font-light tracking-[0.25em] uppercase text-white/30 hover:text-white/60 transition-colors">
+              Légal
+            </Link>
+            <Link href="/privacy" className="text-[10px] font-light tracking-[0.25em] uppercase text-white/30 hover:text-white/60 transition-colors">
+              Confidentialité
+            </Link>
+            <Link href="/contact" className="text-[10px] font-light tracking-[0.25em] uppercase text-white/30 hover:text-white/60 transition-colors">
+              Contact
+            </Link>
+          </div>
+        </div>
+      </footer>
+
+      {/* STYLES */}
+      <style jsx>{`
+        @keyframes fadeInPremium {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes floatPremium {
+          0%, 100% {
+            transform: translateY(0) translateX(-50%);
+          }
+          50% {
+            transform: translateY(-10px) translateX(-50%);
+          }
+        }
+
+        @keyframes drawLinePremium {
+          from {
+            stroke-dasharray: 2000;
+            stroke-dashoffset: 2000;
+          }
+          to {
+            stroke-dasharray: 2000;
+            stroke-dashoffset: 0;
+          }
+        }
+
+        .fade-in-premium {
+          animation: fadeInPremium 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .animate-float-premium {
+          animation: floatPremium 3s ease-in-out infinite;
+        }
+
+        .draw-line-premium {
+          stroke-dasharray: 2000;
+          stroke-dashoffset: 2000;
+          animation: drawLinePremium 2s ease-out forwards;
+          animation-delay: 400ms;
+        }
+      `}</style>
+
+    </div>
+  );
+}
