@@ -708,7 +708,7 @@ export default function MethodologyPage() {
                 </span>
               </h1>
               <p style={{ fontSize: 15, color: 'var(--text-muted)', margin: '0 0 24px', lineHeight: 1.75, maxWidth: 640 }}>
-                Système de scoring multi-assets inspiré de la méthode Rodolphe Steffan.
+                Système de scoring multi-assets inspiré de la méthode.
                 Combine <strong style={{ color: 'var(--text-secondary)' }}>13 piliers d'analyse</strong> pour identifier les actifs
                 à fort potentiel <strong style={{ color: V }}>1 à 6 mois à l'avance</strong>,
                 sur une univers de <strong style={{ color: 'var(--text-secondary)' }}>180+ assets</strong> couvrant actions, crypto, commodités, obligations et devises.
