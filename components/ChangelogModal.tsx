@@ -193,7 +193,7 @@ export default function ChangelogModal({ isOpen, onClose }: Props) {
             <p style={{ fontSize: 12, color: '#4b5563', lineHeight: 1.6, margin: 0 }}>
               DashFlux passe à la version 2.0 avec un système de scoring repensé.
               Le nouveau <strong style={{ color: '#7c3aed' }}>Score Émergent</strong> analyse 13 piliers
-              pour anticiper les mouvements <strong>3 à 6 mois à l'avance</strong> selon la méthode Rodolphe Steffan.
+              pour anticiper les mouvements <strong>3 à 6 mois à l'avance</strong> selon la méthode.
             </p>
           </div>
 
