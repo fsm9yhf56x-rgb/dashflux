@@ -718,7 +718,7 @@ export default function MethodologyPage() {
                 {[
                   { n: 13,  s: '',  label: 'Piliers actifs',       c: V       },
                   { n: 180, s: '+', label: 'Assets analysés',      c: I       },
-                  { n: 95,  s: '%', label: 'Alignement Steffan',   c: '#16a34a' },
+                  { n: 95,  s: '%', label: 'Alignement',   c: '#16a34a' },
                   { n: 4,   s: '',  label: 'Sources de données',   c: '#f59e0b' },
                 ].map(({ n, s, label, c }, i) => {
                   const { ref, inView } = useInView(0.2);
@@ -753,7 +753,7 @@ export default function MethodologyPage() {
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
                     {[
                       { icon: <TrendingUp style={{ width: 15, height: 15 }}/>, title: 'Score Technique',      pct: '30%', color: '#3b82f6', desc: 'Analyse le momentum actuel via performances 1M–12M, position vs MA50/MA200, volatilité et saisonnalité. Répond à : <em>que se passe-t-il maintenant ?</em>' },
-                      { icon: <Zap        style={{ width: 15, height: 15 }}/>, title: 'Score Émergent',       pct: '40%', color: V,       desc: '10 piliers prédictifs qui anticipent les mouvements 1 à 6 mois à l\'avance. Le cœur de la méthode Steffan. Répond à : <em>où va-t-on aller ?</em>' },
+                      { icon: <Zap        style={{ width: 15, height: 15 }}/>, title: 'Score Émergent',       pct: '40%', color: V,       desc: '10 piliers prédictifs qui anticipent les mouvements 1 à 6 mois à l\'avance. Le cœur de la méthode. Répond à : <em>où va-t-on aller ?</em>' },
                       { icon: <Eye        style={{ width: 15, height: 15 }}/>, title: 'Flux Institutionnels', pct: '15%', color: '#22c55e', desc: 'Suit les mouvements du "smart money" via analyse de volume. L\'accumulation institutionnelle précède systématiquement les hausses de prix.' },
                       { icon: <Target     style={{ width: 15, height: 15 }}/>, title: 'Timing & Vélocité',    pct: '15%', color: '#f97316', desc: 'Vélocité (10%) mesure l\'accélération du prix. Timing Entrée (5%) qualifie le setup : pullback, breakout ou dip en uptrend.' },
                     ].map(({ icon, title, pct, color, desc }, i) => {
